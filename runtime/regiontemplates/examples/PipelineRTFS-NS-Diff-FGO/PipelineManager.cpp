@@ -104,7 +104,7 @@ void expand_stages(const map<int, ArgumentBase*> &args, map<int, list<ArgumentBa
 	map<int, PipelineComponentBase*> &expanded_stages, map<int, ArgumentBase*> &workflow_outputs);
 void merge_stages_fine_grain(const map<int, PipelineComponentBase*> &all_stages, 
 	const map<int, PipelineComponentBase*> &stages_ref, map<int, PipelineComponentBase*> &merged_stages, 
-	RegionTemplate* rt, map<int, ArgumentBase*> expanded_args, int max_bucket_size);
+	RegionTemplate* rt, map<int, ArgumentBase*> expanded_args, int max_buckets);
 void generate_drs(RegionTemplate* rt, const map<int, ArgumentBase*> &expanded_args);
 void add_arguments_to_stages(map<int, PipelineComponentBase*> &merged_stages, 
 	map<int, ArgumentBase*> &merged_arguments,
@@ -290,13 +290,12 @@ int main(int argc, char* argv[]) {
 		struct timeval start, end;
 		gettimeofday(&start, NULL);
 
-		merge_stages_fine_grain(expanded_stages, base_stages, merged_stages, rt, expanded_args, 
-			floor(expanded_stages.size()/max_bucket_size));
+		merge_stages_fine_grain(expanded_stages, base_stages, merged_stages, rt, expanded_args, max_bucket_size);
 
 		gettimeofday(&end, NULL);
 
 		long merge_time = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
-		ofstream exec_time("exec_time_b" + to_string((int)floor(expanded_stages.size()/max_bucket_size)), ios::app);
+		ofstream exec_time("exec_time_b" + to_string(max_bucket_size), ios::app);
 		exec_time << "merge time: " << merge_time << endl;
 
 		cout << endl<< "merged-fine before deps resolution: " << endl;
@@ -349,7 +348,7 @@ int main(int argc, char* argv[]) {
 		}
 
 		ofstream solution_file;
-		solution_file.open("fine-grain-merging-solution-b" + to_string((int)floor(expanded_stages.size()/max_bucket_size)), ios::app);
+		solution_file.open("fine-grain-merging-solution-b" + to_string(max_bucket_size), ios::app);
 		cout << endl<< "merged-fine: " << endl;
 		solution_file << endl<< "merged-fine: " << endl;
 		for (pair<int, PipelineComponentBase*> p : merged_stages) {
@@ -359,7 +358,7 @@ int main(int argc, char* argv[]) {
 			cout << "\ttasks: " << endl;
 			for (ReusableTask* t : p.second->tasks) {
 				cout << "\t\t" << t->getId() << ":" << t->getTaskName() << endl;
-				cout << "\t\t" << t->getId() << ":" << t->getTaskName() << endl;
+				solution_file << "\t\t" << t->getId() << ":" << t->getTaskName() << endl;
 			}
 		}
 		solution_file.close();
@@ -1428,7 +1427,7 @@ void merge_stages(PipelineComponentBase* current, PipelineComponentBase* s, map<
 
 	s->reused = current;
 
-	ReusableTask* current_frontier_reusable_tasks;
+	ReusableTask* current_frontier_reusable_tasks = NULL;
 	map<std::string, std::list<ArgumentBase*>>::iterator p=ref.begin();
 	ReusableTask* prev_reusable_task = NULL;
 	for (; p!=ref.end(); p++) {
@@ -1459,7 +1458,8 @@ void merge_stages(PipelineComponentBase* current, PipelineComponentBase* s, map<
 
 	// updates the first non-reusable task dependency
 	ReusableTask* frontier = find_task(s->tasks, p->first);
-	frontier->parentTask = current_frontier_reusable_tasks->getId();
+	if (current_frontier_reusable_tasks != NULL)
+		frontier->parentTask = current_frontier_reusable_tasks->getId();
 	current->tasks.emplace_front(frontier);
 	p++;
 
@@ -2062,7 +2062,7 @@ list<list<PipelineComponentBase*>> montecarlo_recursive_cut(list<PipelineCompone
 
 void merge_stages_fine_grain(const map<int, PipelineComponentBase*> &all_stages, 
 	const map<int, PipelineComponentBase*> &stages_ref, map<int, PipelineComponentBase*> &merged_stages, 
-	RegionTemplate* rt, map<int, ArgumentBase*> expanded_args, int max_bucket_size) {
+	RegionTemplate* rt, map<int, ArgumentBase*> expanded_args, int max_buckets) {
 
 	// attempt merging for each stage type
 	for (map<int, PipelineComponentBase*>::const_iterator ref=stages_ref.cbegin(); ref!=stages_ref.cend(); ref++) {
@@ -2074,7 +2074,7 @@ void merge_stages_fine_grain(const map<int, PipelineComponentBase*> &all_stages,
 		int nrS = 0;
 		double max_nrS_mksp = 0;
 		for (list<PipelineComponentBase*>::iterator s=current_stages.begin(); s!=current_stages.end(); ) {
-			// if the stage isn't composed of reusable tasks then 
+			// if the stage isn't composed of reusable tasks then max_buckets
 			(*s)->tasks = task_generator(ref->second->tasksDesc, *s, rt, expanded_args);
 			if ((*s)->tasks.size() == 0) {
 				merged_stages[(*s)->getId()] = *s;
@@ -2097,36 +2097,31 @@ void merge_stages_fine_grain(const map<int, PipelineComponentBase*> &all_stages,
 			continue;
 		}
 
-		list<list<PipelineComponentBase*>> solution = montecarlo_recursive_cut(current_stages, all_stages, 
-			max_bucket_size, expanded_args, ref->second->tasksDesc);
-
-		// write merging solution
+		// perform the naive merging
 		ofstream solution_file;
-		solution_file.open("fine-grain-merging-solution-b" + to_string(max_bucket_size), ios::trunc);
+		solution_file.open("fine-grain-merging-solution-b" + to_string(max_buckets), ios::trunc);
 		cout << endl << "solution:" << endl;
 		solution_file << endl << "solution:" << endl;
-		for (list<PipelineComponentBase*> b : solution) {
-			cout << "\tbucket with " << b.size() << " stages and cost "
-				<< calc_stage_proc(b, expanded_args, ref->second->tasksDesc) << ":" << endl;
-			solution_file << "\tbucket with " << b.size() << " stages and cost "
-				<< calc_stage_proc(b, expanded_args, ref->second->tasksDesc) << ":" << endl;
-			for (PipelineComponentBase* s : b) {
-				cout << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << endl;
-				// solution_file << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << endl;
+		for (list<PipelineComponentBase*>::iterator s=current_stages.begin(); s!=current_stages.end(); s++) {
+			PipelineComponentBase* current = *(s);
+			int i;
+			for (i=1; i<max_buckets; i++) {
+				if ((++s)==current_stages.end())
+					break;
+				merge_stages(current, *s, ref->second->tasksDesc);
+				merged_stages[(*s)->getId()] = *s;
+				cout << "\t" << current->getId() << " merged with " << (*s)->getId() << endl;
+				cout << "\t" << current->getId() << " now sized " << current->tasks.size() << endl;
 			}
+			cout << "\tbucket with " << i << " stages and "
+				<< current->tasks.size() << " tasks" << endl;
+			solution_file << "\tbucket with " << i << " stages and "
+				<< current->tasks.size() << " tasks" << endl;
+			merged_stages[current->getId()] = current;
+			if (s==current_stages.end())
+				break;
 		}
 		solution_file.close();
-
-		// merge all stages in each bucket, given that they are mergable
-		for (list<PipelineComponentBase*> bucket : solution) {
-			// cout << "bucket merging" << endl;
-			list<PipelineComponentBase*> curr = merge_stages_full(bucket, expanded_args, ref->second->tasksDesc);
-			// send rem stages to merged_stages
-			for (PipelineComponentBase* s : curr) {
-				// cout << "\tadding stage " << s->getId() << endl;
-				merged_stages[s->getId()] = s;
-			}
-		}
 	}
 }
 
