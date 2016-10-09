@@ -103,6 +103,13 @@ Segmentation::Segmentation() {
 
 Segmentation::~Segmentation() {}
 
+void printmap(map<int, ReusableTask*> prev_map) {
+	for (pair<int, ReusableTask*> p : prev_map) {
+		string s = p.second==NULL ? "null" : "valid";
+		cout << p.first << ":" << s << endl;
+	}
+}
+
 int Segmentation::run() {
 
 	// Print name and id of the component instance
