@@ -137,6 +137,26 @@ void Task::addDependency(Task *dependency)
 	}
 }
 
+void Task::addDependent(int dependentId)
+{
+	this->dependents.push_back(dependentId);
+}
+
+
+int Task::getNumberDependents()
+{
+	return this->dependents.size();
+}
+
+int Task::getDependent(int index)
+{
+	int retValue = -1;
+	if(index >= 0 && index < this->getNumberDependents()){
+		retValue = this->dependents[index];
+	}
+	return retValue;
+}
+
 void Task::addArgument(TaskArgument* argument) {
 	this->taskArguments.push_back(argument);
 }

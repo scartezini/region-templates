@@ -28,6 +28,7 @@
 
 #include "debug_funs.hpp"
 
+#include "fake_dependecy/depth_breadth.hpp"
 using namespace std;
 
 // Workflow generation functions
@@ -40,6 +41,15 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs, 
 	map<int, ArgumentBase*>& expanded_args, map<int, PipelineComponentBase*>& expanded_stages,
 	bool use_coarse_grain=true, bool clustered_generation=false);
+
+void dbs(map<int,PipelineComponentBase*> merged_stages, int index){
+
+	cout << "Id: " << merged_stages[index]->getId() << "\n"; 
+	for(int i = 0; i < merged_stages[index]->getNumberDependents(); i++){
+		if(merged_stages[merged_stages[index]->getDependent(i)]->reused == NULL)
+			dbs(merged_stages,merged_stages[merged_stages[index]->getDependent(i)]->getId());
+	}		
+}	
 
 int main(int argc, char* argv[]) {
 
@@ -178,6 +188,8 @@ int main(int argc, char* argv[]) {
 		// resolve dependencies of reused stages
 		for (pair<int, PipelineComponentBase*> p : merged_stages) {
 			// add correct stage dependencies 
+			
+
 			list<int> deps_tmp;
 			for (int i=0; i<p.second->getNumberDependencies(); i++) {
 				
@@ -191,7 +203,7 @@ int main(int argc, char* argv[]) {
 			}
 			for (int d : deps_tmp)
 				p.second->addDependency(d);
-
+			
 			// connect correct output arguments
 			bool updated = true;
 			// cout << "Updating arguments of " << p.second->getId() << ":" << p.second->getName() << endl;
@@ -209,6 +221,49 @@ int main(int argc, char* argv[]) {
 			}
 		}
 
+		
+		for(pair<int,PipelineComponentBase*> p: merged_stages){
+
+			for (int i=0; i<p.second->getNumberDependencies(); i++) {
+				merged_stages[p.second->getDependency(i)]->addDependent(p.second->getId());
+			}	
+		}
+
+
+		std::cout << "********************************************************************************\n"; 
+		for(pair<int,PipelineComponentBase*> p: merged_stages){
+			if(p.second->reused == NULL){
+				cout << "Id: " << p.second->getId() << "\n";
+				cout << "Name: " << p.second->getName() << "\n";
+				cout << "ComponentName: " << p.second->getComponentName() << "\n";
+
+
+				cout << "Dependents: \n";
+				for (int i=0; i<p.second->getNumberDependents(); i++) {
+				//	if(merged_stages[p.second->getDependent(i)]->reused == NULL)
+						cout << "\t" << p.second->getDependent(i)  << ": "
+							<< merged_stages[p.second->getDependent(i)]->getName() << "\n";
+				}	
+
+				cout << "Dependency: \n";
+				for (int i=0; i<p.second->getNumberDependencies(); i++) {
+			//		if(merged_stages[p.second->getDependent(i)]->reused == NULL)
+						cout << "\t" << p.second->getDependency(i)  << ": "
+							<< merged_stages[p.second->getDependency(i)]->getName() << "\n";
+				}	
+				cout << "\n";
+			}
+		}	
+		
+		std::cout << "********************************************************************************\n"; 
+		dbs(merged_stages,merged_stages.begin()->second->getId());
+		std::cout << "********************************************************************************\n"; 
+
+		
+			
+
+		return 0;
+
 		//------------------------------------------------------------
 		// Add workflows to Manager to be executed
 		//------------------------------------------------------------
@@ -219,7 +274,7 @@ int main(int argc, char* argv[]) {
 			MPI_Send(&mpi_val, 1, MPI_INT, i, 99, MPI_COMM_WORLD);
 
 		// Tell the system which libraries should be used
-		sysEnv.startupSystem(argc, argv, "libcomponentnsdifffgo.so");
+		//**sysEnv.startupSystem(argc, argv, "libcomponentnsdifffgo.so");
 
 		// add all stages to manager
 		// cout << endl << "executeComponent" << endl;
@@ -254,7 +309,7 @@ int main(int argc, char* argv[]) {
 
 				// workaround to make sure that the RTs, if any, won't leak on this part of the algorithm
 				s.second->setLocation(PipelineComponentBase::MANAGER_SIDE);
-				sysEnv.executeComponent(s.second);
+				//**sysEnv.executeComponent(s.second);
 			}
 		}
 

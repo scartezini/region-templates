@@ -42,6 +42,7 @@ class Task {
 		// Contains the tasks that this current is dependent. In other words, the set of tasks
 		// that should execute before the current task is dispatch for execution.
 		vector<int> dependencies;
+		vector<int> dependents;
 
 		// Number of dependencies solved: number of tasks that this task depends, and have
 		// 								  already finished the execution.
@@ -79,6 +80,10 @@ class Task {
 		int downloadArgument(int index, cv::gpu::Stream& stream);
 
 		Task* tryPreassignment();
+
+		void addDependent(int dependentId);
+	 	int getNumberDependents();
+		int getDependent(int index);
 
 		// Adds a single dependency.
 		void addDependency(int dependencyId);
