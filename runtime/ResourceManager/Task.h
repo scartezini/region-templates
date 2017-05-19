@@ -43,6 +43,8 @@ class Task {
 		// that should execute before the current task is dispatch for execution.
 		vector<int> dependencies;
 		vector<int> dependents;
+		
+		vector<int> fakeDependencies;
 
 		// Number of dependencies solved: number of tasks that this task depends, and have
 		// 								  already finished the execution.
@@ -85,6 +87,12 @@ class Task {
 	 	int getNumberDependents();
 		int getDependent(int index);
 
+		void addFakeDependency(int fDependencyId);
+		void addFakeDependency(Task *fDependency);
+		
+		int getFakeDependency(int index);
+
+		int getNumberFakeDependencies();
 		// Adds a single dependency.
 		void addDependency(int dependencyId);
 

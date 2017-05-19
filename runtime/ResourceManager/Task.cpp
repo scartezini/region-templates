@@ -59,6 +59,32 @@ Task::~Task()
 
 }
 
+
+void Task::addFakeDependency(int fDependencyId){
+	this->fakeDependencies.push_back(fDependencyId);
+}
+
+void Task::addFakeDependency(Task* fDependency){
+	try{
+		this->fakeDependencies.push_back(fDependency->getId());
+	}catch(exception &e){
+		std::cout << __FILE__<<":"<< __LINE__<< ". Exception: failed to addFakeDependency, input depency address="<<fDependency<<std::endl;
+		std::cout << e.what() << std::endl;
+	}
+}
+
+int Task::getFakeDependency(int index){
+	int retValue = -1;
+	if(index >= 0 && index < this->getNumberFakeDependencies()){
+		retValue = this->fakeDependencies[index];
+	}
+	return retValue;
+}
+
+int Task::getNumberFakeDependencies(){
+  return this->fakeDependencies.size();
+}
+
 Task* Task::tryPreassignment(){
 	Task* preassignedTask = NULL;
 	if(curExecEngine != NULL){

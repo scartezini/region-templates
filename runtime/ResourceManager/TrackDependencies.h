@@ -25,6 +25,9 @@ private:
 	// those tasks which the execution depends on it.
 	std::map<int, std::list<Task *> > dependencyMap;
 
+	std::map<int, std::list<Task *>* > fakeDependencyMap;
+	std::map<int, std::list<Task *>* > fakeDependentList;
+
 	// Lock used to guarantee atomic access to the dependentyMap
 	static pthread_mutex_t dependencyMapLock;
 
@@ -47,6 +50,9 @@ private:
 public:
 	TrackDependencies();
 	virtual ~TrackDependencies();
+
+	void checkFakeDependencies(Task* task, TasksQueue* tq);
+	void resolveFakeDependencies(Task* task, TasksQueue* tq);
 
 	// Verifies if task dependencies have been solved and queue it for execution,
 	// or leave the task as pending until dependencies are solved

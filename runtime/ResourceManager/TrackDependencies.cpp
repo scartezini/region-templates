@@ -16,6 +16,99 @@ TrackDependencies::TrackDependencies() {
 
 }
 
+void TrackDependencies::checkFakeDependencies(Task* task, TasksQueue* tq){
+	std::map<int, std::list<Task*>*>::iterator fakeDependencyMapIt;
+
+	
+	int nFdependacySolve = 0;
+	for(int i = 0; i < task->getNumberFakeDependencies(); i++){
+
+		fakeDependencyMapIt = this->fakeDependencyMap.find(task->getFakeDependency(i));
+
+		if(fakeDependencyMapIt != this->fakeDependencyMap.end()){
+			if(fakeDependencyMapIt->second == NULL){
+				if(fakeDependentList.find(task->getId()) == fakeDependentList.end()){
+					std::list<Task *> l;
+					l.push_back(task);
+					
+					fakeDependencyMapIt->second = &l;
+					fakeDependentList.insert(std::pair<int,std::list<Task*>*>(task->getId(),&l));
+				}else
+					fakeDependencyMapIt->second = fakeDependentList.find(task->getId())->second;
+			 		
+			}else{
+				fakeDependencyMapIt->second->push_back(task);
+				break;
+			}
+			
+		}else 
+			nFdependacySolve++;
+
+	}
+  
+	fakeDependencyMap.insert(std::pair<int, std::list<Task*>* >(task->getId(),NULL));
+
+	// Check whether all dependencies were solved, and dispatches task for execution if affirmative
+	if(task->getNumberDependencies() == task->getNumberDependenciesSolved()){
+		// It always starts empty, and tasks are added as they are dispatched for check fake dependecies
+		if(nFdependacySolve == task->getNumberFakeDependencies()){
+			tq->insertTask(task);
+		}
+
+	}else 
+		this->incrementCountTasksPending();
+
+}
+
+
+void TrackDependencies::resolveFakeDependencies(Task* task, TasksQueue* tq){
+
+	std::map<int,std::list<Task*>* >::iterator fakeDependencyMapIt;
+	pthread_mutex_lock(&TrackDependencies::dependencyMapLock);
+	
+	fakeDependencyMapIt = fakeDependencyMap.find(task->getId());
+	if(fakeDependencyMapIt->second != NULL) {
+		  if(fakeDependencyMapIt->second->size() > 0){
+			//firt task to dependencies 
+			Task* dependentTask = fakeDependencyMapIt->second->front();
+			//remove task of fake dependency
+			fakeDependencyMapIt->second->pop_front();
+	
+	
+			//Inherits dependencies remaining
+			std::map<int, std::list<Task*>* >::iterator fakeDependentMapIt;
+			fakeDependentMapIt = fakeDependencyMap.find(dependentTask->getId());
+			fakeDependentMapIt->second = fakeDependencyMapIt->second;
+			
+		  	// if current task is not in ACTIVE, modify dependent tasks to that status
+			if(task->getStatus() != ExecEngineConstants::ACTIVE){
+				dependentTask->setStatus(task->getStatus());
+			}
+			
+			tq->insertTask(dependentTask);
+			this->decrementCountTasksPending();
+	
+		}
+	}
+//
+//	fakeDependencyMap.erase(fakeDependencyMapIt);
+	//Update id of dependents map
+//	if(fakeDependencyMapIt->second->size() > 0){
+//		
+//		int id = fakeDependencyMapIt->second->front()->getId();
+//		fakeDependentList.insert(std::pair<int,std::list<Task*>*>(id,fakeDependencyMapIt->second));
+//
+//		std::map<int, std::list<Task*>* >::iterator fakeDependentListIt;
+//		fakeDependentListIt = fakeDependentList.find(task->getId());
+//
+//		fakeDependentList.erase(fakeDependentListIt);
+//	}
+
+	
+	pthread_mutex_unlock(&TrackDependencies::dependencyMapLock);	
+}
+
+
 void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 	std::map<int, std::list<Task *> >::iterator dependencyMapIt;
 
@@ -23,6 +116,7 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 	pthread_mutex_lock(&TrackDependencies::dependencyMapLock);
 
 	if(task->getTaskType() == ExecEngineConstants::IO_TASK){
+		// It always starts empty, and tasks are added as they are dispatched for execution
 		this->setInputIoTaskId(task->getId());
 	}else{
 		if(this->getInputIoTaskId() != -1)
@@ -57,22 +151,11 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 
 	dependencyMap.insert(std::pair<int, list<Task *> >(task->getId(), l));
 
-	// Check whether all dependencies were solved, and dispatches task for execution if affirmative
-	if(task->getNumberDependencies() == task->getNumberDependenciesSolved()){
-		// It always starts empty, and tasks are added as they are dispatched for execution
-		tq->insertTask(task);
-		// std::cout << "[dependency_test] stage " << task->getId() << " is solved: " 
-		// 	<< task->getNumberDependenciesSolved() << " out of "
-		// 	<< task->getNumberDependencies() << std::endl;
-	}else{
-		this->incrementCountTasksPending();
-		// std::cout << "[dependency_test] stage " << task->getId() << " is pending with " 
-		// 	<< task->getNumberDependenciesSolved() << " out of "
-		// 	<< task->getNumberDependencies() << " deps solved" << std::endl;
-	}
+	checkFakeDependencies(task,tq);		
 
 	// Unlock dependency map
 	pthread_mutex_unlock(&TrackDependencies::dependencyMapLock);
+
 
 }
 
@@ -207,10 +290,12 @@ void TrackDependencies::resolveDependencies(Task* task, TasksQueue* tq) {
 
 			// if all dependencies of this tasks were solved, dispatches it to execution
 			if(dependentTask->getNumberDependenciesSolved() == dependentTask->getNumberDependencies()){
-//				if(dependentTask->getTaskType() == ExecEngineConstants::PROC_TASK){
+			  	//else, cam only dispatched for resolve fake dependecy 
+				if(dependentTask->getNumberFakeDependencies() == 0){
 					tq->insertTask(dependentTask);
 					this->decrementCountTasksPending();
-//				}else{
+				}
+				//else{
 					// If all dependencies are solved, and endTransaction was called (meaning that isCallBackDesReady will return true)
 //					if(dependentTask->getTaskType() == ExecEngineConstants::TRANSACTION_TASK && dependentTask->isCallBackDepsReady()){
 //						dependentTask->run();
@@ -220,6 +305,7 @@ void TrackDependencies::resolveDependencies(Task* task, TasksQueue* tq) {
 
 			}
 		}
+		
 		// Remove task that just finished from the dependency map
 		dependencyMap.erase(dependencyMapIt);
 
@@ -229,6 +315,7 @@ void TrackDependencies::resolveDependencies(Task* task, TasksQueue* tq) {
 
 	// Unlock dependency map
 	pthread_mutex_unlock(&TrackDependencies::dependencyMapLock);
+	resolveFakeDependencies(task,tq);
 }
 
 int TrackDependencies::getCountTasksPending() const {
