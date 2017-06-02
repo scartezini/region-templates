@@ -238,8 +238,7 @@ int main(int argc, char* argv[]) {
 			res::print_merged_stages(merged_stages);
 		}
 		
-			res::print_merged_stages(merged_stages);
-		//------------------------------------------------------------
+			//------------------------------------------------------------
 		// Add workflows to Manager to be executed
 		//------------------------------------------------------------
 

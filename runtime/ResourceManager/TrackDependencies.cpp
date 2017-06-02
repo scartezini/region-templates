@@ -28,11 +28,11 @@ void TrackDependencies::checkFakeDependencies(Task* task, TasksQueue* tq){
 		if(fakeDependencyMapIt != this->fakeDependencyMap.end()){
 			if(fakeDependencyMapIt->second == NULL){
 				if(fakeDependentList.find(task->getId()) == fakeDependentList.end()){
-					std::list<Task *> l;
-					l.push_back(task);
+					std::list<Task *>* l = new std::list<Task*>();
+					l->push_back(task);
 					
-					fakeDependencyMapIt->second = &l;
-					fakeDependentList.insert(std::pair<int,std::list<Task*>*>(task->getId(),&l));
+					fakeDependencyMapIt->second = l;
+					fakeDependentList.insert(std::pair<int,std::list<Task*>*>(task->getId(),l));
 				}else
 					fakeDependencyMapIt->second = fakeDependentList.find(task->getId())->second;
 			 		
@@ -71,6 +71,8 @@ void TrackDependencies::resolveFakeDependencies(Task* task, TasksQueue* tq){
 		  if(fakeDependencyMapIt->second->size() > 0){
 			//firt task to dependencies 
 			Task* dependentTask = fakeDependencyMapIt->second->front();
+			//cout << "map Dependency: " << fakeDependencyMapIt->first<< endl;
+			//cout << "dependentTask: " << dependentTask->getId() << endl; 
 			//remove task of fake dependency
 			fakeDependencyMapIt->second->pop_front();
 	
