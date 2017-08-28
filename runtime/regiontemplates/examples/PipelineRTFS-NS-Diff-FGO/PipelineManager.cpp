@@ -116,6 +116,10 @@ int main(int argc, char* argv[]) {
 		// workflow file
 		FILE* workflow_descriptor = fopen("seg_example.t2flow", "r");
 
+		if(workflow_descriptor == 0) {
+			cout << "workflow descriptor does not open";
+			return 0;
+		}
 		//------------------------------------------------------------
 		// Parse pipeline file
 		//------------------------------------------------------------
