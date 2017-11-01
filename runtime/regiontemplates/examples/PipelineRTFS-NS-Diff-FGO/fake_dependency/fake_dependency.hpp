@@ -11,7 +11,7 @@ using namespace std;
 
 namespace dbs{
 	void dbs(map<int,PipelineComponentBase*> merged_stages, int index, int max_parallel_run);
-	void make_fake_dependecy(map<int,PipelineComponentBase*> merged_stages, int index, int max_parallel_run);
+	void make_fake_dependency(map<int,PipelineComponentBase*> merged_stages, int index, int max_parallel_run);
 };
 
 namespace res{

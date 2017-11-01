@@ -28,7 +28,7 @@
 
 #include "debug_funs.hpp"
 
-#include "fake_dependecy/fake_dependecy.hpp"
+#include "fake_dependency/fake_dependency.hpp"
 using namespace std;
 
 // Workflow generation functions
@@ -82,9 +82,9 @@ int main(int argc, char* argv[]) {
 		// get arguments
 		
 		int max_parallel_run = 0;
-		bool fake_dependecy = true;
+		bool fake_dependency = true;
 		if (find_arg_pos("-mp", argc, argv) == -1) {
-			fake_dependecy = false;
+			fake_dependency = false;
 		} else
 			max_parallel_run = atoi(argv[find_arg_pos("-mp", argc, argv)+1]);
 
@@ -229,15 +229,15 @@ int main(int argc, char* argv[]) {
 		}
 
 		
-//		//reverse pointer of dependecy			
+//		//reverse pointer of dependency			
 //		for(pair<int,PipelineComponentBase*> p: merged_stages){
 //			for (int i=0; i<p.second->getNumberDependencies(); i++) {
 //				merged_stages[p.second->getDependency(i)]->addDependent(p.second->getId());
 //			}	
 //		}
 //
-//		//naive fake dependecy
-//		if(fake_dependecy && max_parallel_run > 0){
+//		//naive fake dependency
+//		if(fake_dependency && max_parallel_run > 0){
 //			dbs::dbs(merged_stages,merged_stages.begin()->second->getId(),max_parallel_run);
 //			res::print_merged_stages(merged_stages);
 //		}

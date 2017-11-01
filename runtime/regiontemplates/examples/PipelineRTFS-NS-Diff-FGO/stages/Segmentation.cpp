@@ -184,7 +184,7 @@ void Segmentation::algorith1(map<int,ReusableTask*> &tasks, int index,
 		memory -= tasks[index]->accCost;
 
 		tasks[index]->memRefund = tasks[index]->accCost;
-		finalized.push(notifyPaterner(tasks,index));
+		finalized.push(notifyParent(tasks,index));
 
 	}else if(tasks[index]->cost <= memory){
 		for(int p: pivot)
@@ -225,18 +225,18 @@ void propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot){
 }
 
 
-int notifyPaterner(map<int,ReusableTask*> &tasks, int index){
+int notifyParent(map<int,ReusableTask*> &tasks, int index){
 
-	int paterner;
-	paterner = tasks[index]->getDependency(0);
-	if(paterner == -1)
+	int parent;
+	parent = tasks[index]->getDependency(0);
+	if(parent == -1)
 		return index;
 
-	tasks[paterner]->numberDependentsFinalized++;
-	if(tasks[paterner]->getNumberDependents() == tasks[paterner]->numberDependentsFinalized){
+	tasks[parent]->numberDependentsFinalized++;
+	if(tasks[parent]->getNumberDependents() == tasks[parent]->numberDependentsFinalized){
 		//memRefund tem que começar com cost curr
-		tasks[paterner]->memRefund += tasks[index]->memRefund;			
-		return notifyPaterner(tasks,paterner);
+		tasks[parent]->memRefund += tasks[index]->memRefund;			
+		return notifyParent(tasks,parent);
 	}else
 		return index;
 

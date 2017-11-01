@@ -1,8 +1,8 @@
-#include "fake_dependecy.hpp"
+#include "fake_dependency.hpp"
 	
 	
 
-void dbs::make_fake_dependecy(map<int,PipelineComponentBase*> merged_stages, int index, int max_parallel_run){
+void dbs::make_fake_dependency(map<int,PipelineComponentBase*> merged_stages, int index, int max_parallel_run){
 	PipelineComponentBase * parent = merged_stages[index];
 
 	for(int i = 0; i < parent->getNumberDependents(); i++){
@@ -23,7 +23,7 @@ void dbs::dbs(map<int,PipelineComponentBase*> merged_stages, int index, int max_
 			if(merged_stages[merged_stages[index]->getDependent(i)]->reused == NULL)
 				dbs(merged_stages,merged_stages[merged_stages[index]->getDependent(i)]->getId(),max_parallel_run);
 		}else{
-			make_fake_dependecy(merged_stages, index, max_parallel_run);
+u		make_fake_dependency(merged_stages, index, max_parallel_run);
 			return;	
 		}
 	}		
