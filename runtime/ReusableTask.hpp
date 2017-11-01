@@ -28,6 +28,9 @@ public:
 	// list of tasks' ids that are dependent on this task
 	int parentTask;
 
+	int cost;
+	int accCost;
+
 	// if the task isn't going to be executed then it's a mock
 	// used to enable corect arguments delete, preventing mem leaking
 	bool mock;

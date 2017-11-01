@@ -229,18 +229,18 @@ int main(int argc, char* argv[]) {
 		}
 
 		
-		//reverse pointer of dependecy			
-		for(pair<int,PipelineComponentBase*> p: merged_stages){
-			for (int i=0; i<p.second->getNumberDependencies(); i++) {
-				merged_stages[p.second->getDependency(i)]->addDependent(p.second->getId());
-			}	
-		}
-
-		//naive fake dependecy
-		if(fake_dependecy && max_parallel_run > 0){
-			dbs::dbs(merged_stages,merged_stages.begin()->second->getId(),max_parallel_run);
-			res::print_merged_stages(merged_stages);
-		}
+//		//reverse pointer of dependecy			
+//		for(pair<int,PipelineComponentBase*> p: merged_stages){
+//			for (int i=0; i<p.second->getNumberDependencies(); i++) {
+//				merged_stages[p.second->getDependency(i)]->addDependent(p.second->getId());
+//			}	
+//		}
+//
+//		//naive fake dependecy
+//		if(fake_dependecy && max_parallel_run > 0){
+//			dbs::dbs(merged_stages,merged_stages.begin()->second->getId(),max_parallel_run);
+//			res::print_merged_stages(merged_stages);
+//		}
 		
 			//------------------------------------------------------------
 		// Add workflows to Manager to be executed

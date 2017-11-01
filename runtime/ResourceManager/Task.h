@@ -116,6 +116,7 @@ class Task {
 
 		// Simple function used for debugging purposes
 		void printDependencies(void);
+		void printDependents(void);
 
 		// Assigns a speedup to this task for a given processor architecture.
 		void setSpeedup(int procType=ExecEngineConstants::GPU, float speedup=1.0);

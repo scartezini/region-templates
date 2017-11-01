@@ -36,6 +36,14 @@ public:
 	void print();
 
 	int run();
+
+	//algth 1
+	
+	/* *
+	 * Função que atualiza o custo de uma tarefa de acordo
+	 * com o custo das tarefas que é depenpendente dela 
+	 * */
+	int accumulateCost(ReusableTask* task, const map<int,ReusableTask*> dep_map);
 };
 
 /**************************************************************************************/
@@ -81,6 +89,8 @@ public:
 	int size();
 
 	void print();
+
+	
 };
 // TaskSegmentation1 header
 class TaskSegmentation1: public ReusableTask {

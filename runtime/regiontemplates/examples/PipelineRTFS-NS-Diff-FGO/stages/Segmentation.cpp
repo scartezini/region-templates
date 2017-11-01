@@ -115,7 +115,7 @@ int Segmentation::run() {
 	this->addInputOutputDataRegion("tile", "segmented_rt", RTPipelineComponentBase::OUTPUT);
 
 
-	map<int, ReusableTask*> prev_map;
+	map<int, ReusableTask*> dep_map;
 	list<ReusableTask*> ordered_tasks;
 	for (list<ReusableTask*>::reverse_iterator task=tasks.rbegin(); task!=tasks.rend(); task++) {
 		// cout << "[Segmentation] sending task " << (*task)->getId() << endl;
@@ -126,14 +126,30 @@ int Segmentation::run() {
 		// solve dependency if it isn't the first task
 		if (t->parentTask != -1) {
 			// cout << "\t\t\t[Segmentation] setting dep of " << t->getId() << " to " << prev_map[t->parentTask]->getId() << endl;
-			t->addDependency(prev_map[t->parentTask]->getId());
-			t->resolveDependencies(prev_map[t->parentTask]);
+			t->addDependency(dep_map[t->parentTask]->getId());
+			//reverse pointer of dependency
+			dep_map[t->parentTask]->addDependent(t->getId());
+
+			t->resolveDependencies(dep_map[t->parentTask]);
 		}
 
 		// add this task to parent list for future dependency resolution
-		prev_map[t->getId()] = t;
+		dep_map[t->getId()] = t;
 		ordered_tasks.emplace_back(t);
 	}
+
+	for(auto &t: dep_map){
+		t.second->printDependencies();	
+	}
+	cerr << "-----------------------------------------\n";
+	for(auto& t: dep_map){
+		t.second->printDependencies();	
+	}
+	cerr << "-----------------------------------------\n";
+	for(auto& t: dep_map){
+		t.second->printDependents();
+	}
+	cerr << "-----------------------------------------\n";
 
 	// send all tasks to be executed
 	for (ReusableTask* t : ordered_tasks) {
@@ -143,6 +159,87 @@ int Segmentation::run() {
 	}
 
 	return 0;
+}
+
+int Segmentation::accumulateCost(ReusableTask* task, const map<int,ReusableTask*> dep_map){
+	task->accCost = task->cost;
+
+	if(task->getNumberDependents() == 0)
+		return task->accCost;
+	
+	for(int i = 0; i < task->getNumberDependents(); i++){
+		task->accCost += accumulateCost(dep_map.at(task->getDependent(i)),dep_map);
+	}	
+
+} 
+
+void Segmentation::algorith1(map<int,ReusableTask*> &tasks, int index,
+	 													 int &memory, stack<int> &finalized, vector<int> &pivot){
+	
+	if(tasks[index]->accCost() <= memory){
+		//dependencia tem que ser feita com os filhos
+		for(int p: pivot)
+			propagateDependency(tasks,index,p);
+
+		memory -= tasks[index]->accCost;
+
+		tasks[index]->memRefund = tasks[index]->accCost;
+		finalized.push(notifyPaterner(tasks,index));
+
+	}else if(tasks[index]->cost <= memory){
+		for(int p: pivot)
+			propagateDependency(tasks,index,p);
+
+		memory -= tasks[index]->cost;
+		//busca em profundidade
+		for(int i = 0; i < tasks[index]->getNumberDependents(); i++)
+			algorith1(tasks,tasks[tasks[index]->getDependent(i)]->getId(),memory,finalized,pivot);
+
+	}else{
+		if(finalized.empty()){
+			cerr << __FILE__ << ":" << __LINE__ << " Impossible execution";
+			exit(-1);
+		}
+
+		memory += tasks[finalized.top()]->memRefund;
+		pivot.push_back(finalized.top());
+		finalized.pop();
+		algorith1(tasks,index,memory,finalized,pivot);	
+	}
+
+}
+
+
+void propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot){
+	
+	if(tasks[pivot]->getNumberDependents() == 0){
+		tasks[index]->addDependency(pivot);
+		tasks[pivot]->addDependent(index);
+		return;
+	}
+
+	for(int i = 0; i < tasks[pivot]->getNumberDependents(); i++){
+		propagateDependency(tasks,index,tasks[pivot]->getDependent(i));
+	}
+
+}
+
+
+int notifyPaterner(map<int,ReusableTask*> &tasks, int index){
+
+	int paterner;
+	paterner = tasks[index]->getDependency(0);
+	if(paterner == -1)
+		return index;
+
+	tasks[paterner]->numberDependentsFinalized++;
+	if(tasks[paterner]->getNumberDependents() == tasks[paterner]->numberDependentsFinalized){
+		//memRefund tem que começar com cost curr
+		tasks[paterner]->memRefund += tasks[index]->memRefund;			
+		return notifyPaterner(tasks,paterner);
+	}else
+		return index;
+
 }
 
 // Create the component factory
