@@ -14,6 +14,9 @@
 #include "Task.h"
 #include "DenseDataRegion2D.h"
 #include "ReusableTask.hpp"
+#include "stack"
+#include "set"
+#include "map"
 
 #include "opencv2/opencv.hpp"
 #include "opencv2/gpu/gpu.hpp"
@@ -26,6 +29,7 @@ private:
 	// data region id
 	// IMPORTANT: this need to be set during the creation of this object
 	int workflow_id;
+	int numberDependentsFinalized;
 
 public:
 	Segmentation();
@@ -44,6 +48,14 @@ public:
 	 * com o custo das tarefas que é depenpendente dela 
 	 * */
 	int accumulateCost(ReusableTask* task, const map<int,ReusableTask*> dep_map);
+
+	void algorith1(std::map<int,ReusableTask*> &tasks, int index,
+ 							 int &memory, std::stack<int> &finalized, std::set<int> &pivot);
+
+
+	void notifyParent(map<int,ReusableTask*> &tasks, int index, stack<int> &finalized);
+	void propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot);
+	void propagatePivot(map<int,ReusableTask*> &tasks, set<int> &pivot, int index);
 };
 
 /**************************************************************************************/

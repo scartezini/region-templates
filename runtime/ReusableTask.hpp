@@ -30,6 +30,8 @@ public:
 
 	int cost;
 	int accCost;
+	int memRefund;
+	int numberDependentsFinalized;
 
 	// if the task isn't going to be executed then it's a mock
 	// used to enable corect arguments delete, preventing mem leaking

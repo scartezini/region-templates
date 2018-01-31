@@ -23,7 +23,7 @@ void dbs::dbs(map<int,PipelineComponentBase*> merged_stages, int index, int max_
 			if(merged_stages[merged_stages[index]->getDependent(i)]->reused == NULL)
 				dbs(merged_stages,merged_stages[merged_stages[index]->getDependent(i)]->getId(),max_parallel_run);
 		}else{
-u		make_fake_dependency(merged_stages, index, max_parallel_run);
+		make_fake_dependency(merged_stages, index, max_parallel_run);
 			return;	
 		}
 	}		

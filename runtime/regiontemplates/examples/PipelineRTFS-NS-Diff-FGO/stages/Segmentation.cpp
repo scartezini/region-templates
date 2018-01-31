@@ -173,22 +173,26 @@ int Segmentation::accumulateCost(ReusableTask* task, const map<int,ReusableTask*
 
 } 
 
-void Segmentation::algorith1(map<int,ReusableTask*> &tasks, int index,
-	 													 int &memory, stack<int> &finalized, vector<int> &pivot){
+void Segmentation::algorith1(std::map<int,ReusableTask*> &tasks, int index,
+ 							 int &memory, std::stack<int> &finalized, std::set<int> &pivot){
 	
-	if(tasks[index]->accCost() <= memory){
-		//dependencia tem que ser feita com os filhos
-		for(int p: pivot)
-			propagateDependency(tasks,index,p);
+	if(tasks[index]->accCost <= memory){
+		for(int p: pivot){
+			tasks[index]->addDependency(p);
+			tasks[p]->addDependent(index);
+		}
 
 		memory -= tasks[index]->accCost;
 
 		tasks[index]->memRefund = tasks[index]->accCost;
-		finalized.push(notifyParent(tasks,index));
+		finalized.push(index);
+		notifyParent(tasks,index,finalized);
 
 	}else if(tasks[index]->cost <= memory){
-		for(int p: pivot)
-			propagateDependency(tasks,index,p);
+		for(int p: pivot){
+			tasks[index]->addDependency(p);
+			tasks[p]->addDependent(index);
+		}
 
 		memory -= tasks[index]->cost;
 		//busca em profundidade
@@ -202,15 +206,25 @@ void Segmentation::algorith1(map<int,ReusableTask*> &tasks, int index,
 		}
 
 		memory += tasks[finalized.top()]->memRefund;
-		pivot.push_back(finalized.top());
+		propagatePivot(tasks, pivot,finalized.top());
 		finalized.pop();
 		algorith1(tasks,index,memory,finalized,pivot);	
 	}
 
 }
 
+void Segmentation::propagatePivot(map<int,ReusableTask*> &tasks, set<int> &pivot, int index){
+	if(tasks[index]->getNumberDependents() == 0){
+		pivot.insert(index);
+		return;
+	}
 
-void propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot){
+	for(int i=0; i < tasks[index]->getNumberDependents(); i++)
+		propagatePivot(tasks,pivot,tasks[index]->getDependent(i));
+	
+}
+
+void Segmentation::propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot){
 	
 	if(tasks[pivot]->getNumberDependents() == 0){
 		tasks[index]->addDependency(pivot);
@@ -225,20 +239,29 @@ void propagateDependency(map<int,ReusableTask*> &tasks, int index, int pivot){
 }
 
 
-int notifyParent(map<int,ReusableTask*> &tasks, int index){
+void Segmentation::notifyParent(map<int,ReusableTask*> &tasks, int index, stack<int> &finalized){
 
 	int parent;
 	parent = tasks[index]->getDependency(0);
 	if(parent == -1)
-		return index;
-
+		return;
+	
+	tasks[parent]->memRefund = tasks[parent]->cost;
 	tasks[parent]->numberDependentsFinalized++;
+	//parent finalized
 	if(tasks[parent]->getNumberDependents() == tasks[parent]->numberDependentsFinalized){
-		//memRefund tem que começar com cost curr
-		tasks[parent]->memRefund += tasks[index]->memRefund;			
-		return notifyParent(tasks,parent);
-	}else
-		return index;
+		//pela forma que é feito o algorth os dependentes que estao na finalizadas estarão 
+		//sempre pela ordem decrescente, então aproveito isso para fazer um corte na busca de 
+		//dependetes nessa tabela
+		for(int i = tasks[parent]->getNumberDependents() - 1; i >= 0; i--){
+			if(tasks[parent]->getDependent(i) == finalized.top()){
+				int dep = finalized.top();
+				tasks[parent]->memRefund += tasks[dep]->memRefund;
+				finalized.pop();
+			}
+		}
+		finalized.push(parent);
+	}
 
 }
 
