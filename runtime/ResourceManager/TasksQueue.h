@@ -34,6 +34,9 @@ public:
 	// Remove task if found and returns a pointer
 	virtual Task* getByTaskId(int id);
 
+
+	virtual void retrieveResources(int res);
+
 	// Unlock threads that may be waiting at the getTask function
 	void releaseThreads(int numThreads);
 
@@ -75,6 +78,32 @@ public:
 	Task* getTask(int procType=ExecEngineConstants::CPU);
 	int getSize();
 	void getFrontBackSpeedup(float &front, float &back);
+};
+
+//FIFO Memory block
+class TasksQueueMB: public TasksQueue {
+private:
+	list<Task*> tasksQueue;
+	list<Task*> memBlockQueue;
+
+
+	int available;
+
+public:
+	TasksQueueMB(int cpuThreads, int gpuThreads, int available){
+		this->cpuThreads = cpuThreads;
+		this->gpuThreads = gpuThreads;
+
+		this->available = available;
+	}
+
+	bool insertTask(Task* task);
+	Task* getTask(int procType=ExecEngineConstants::CPU);
+	int getSize();
+	Task* getByTaskId(int id);
+
+	void retrieveResources(int memory);
+
 };
 
 

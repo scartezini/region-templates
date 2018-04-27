@@ -125,8 +125,9 @@ int Segmentation::run() {
 
 		// solve dependency if it isn't the first task
 		if (t->parentTask != -1) {
-			// cout << "\t\t\t[Segmentation] setting dep of " << t->getId() << " to " << prev_map[t->parentTask]->getId() << endl;
+			//cout << "\t\t\t[Segmentation] setting dep of " << t->getId() << " to " << prev_map[t->parentTask]->getId() << endl;
 			t->addDependency(prev_map[t->parentTask]->getId());
+			prev_map[t->parentTask]->addDependentPointer((Task*) t);
 			t->resolveDependencies(prev_map[t->parentTask]);
 		}
 
@@ -137,7 +138,8 @@ int Segmentation::run() {
 
 	// send all tasks to be executed
 	for (ReusableTask* t : ordered_tasks) {
-		cout << "\t\t\t[Segmentation] sending task " << t->getId() << endl;
+		cerr << "\t\t\t[Segmentation] sending task " << t->getId() << endl;
+		t->printDependencies();
 		t->mock = false;
 		this->executeTask(t);
 	}
@@ -165,7 +167,7 @@ TaskSegmentation0::TaskSegmentation0() {
 }
 
 TaskSegmentation0::TaskSegmentation0(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("normalized_rt") == 0) {
@@ -210,7 +212,7 @@ TaskSegmentation0::TaskSegmentation0(list<ArgumentBase*> args, RegionTemplate* i
 
 	bgr = std::shared_ptr<std::vector<cv::Mat>>(new std::vector<cv::Mat>);
 	rbc = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation0::~TaskSegmentation0() {
@@ -227,10 +229,10 @@ bool TaskSegmentation0::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation0 executing." << std::endl;	
+	std::cout << "TaskSegmentation0 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg1(normalized_rt, blue, green, red, T1, T2, &*bgr, &*rbc);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -259,7 +261,7 @@ void TaskSegmentation0::updateInterStageArgs(ReusableTask* t) {
 void TaskSegmentation0::resolveDependencies(ReusableTask* t) {
 	// verify if the task type is compatible
 
-	
+
 
 }
 
@@ -283,7 +285,7 @@ bool TaskSegmentation0::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation0::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) + (*this->normalized_rt_temp)->getName().length()*sizeof(char) + sizeof(int) +
 		sizeof(unsigned char) +
@@ -431,7 +433,7 @@ ReusableTask* Segmentation0Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation02 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation0", 
+bool registeredTaskSegmentation02 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation0",
 	&Segmentation0Factory1, &Segmentation0Factory2);
 
 TaskSegmentation1::TaskSegmentation1() {
@@ -442,7 +444,7 @@ TaskSegmentation1::TaskSegmentation1() {
 }
 
 TaskSegmentation1::TaskSegmentation1(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("reconConnectivity") == 0) {
@@ -458,7 +460,7 @@ TaskSegmentation1::TaskSegmentation1(list<ArgumentBase*> args, RegionTemplate* i
 	rc = std::shared_ptr<cv::Mat>(new cv::Mat);
 	rc_recon = std::shared_ptr<cv::Mat>(new cv::Mat);
 	rc_open = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation1::~TaskSegmentation1() {
@@ -474,10 +476,10 @@ bool TaskSegmentation1::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation1 executing." << std::endl;	
+	std::cout << "TaskSegmentation1 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg2(reconConnectivity, &*bgr, &*rc, &*rc_recon, &*rc_open);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -507,7 +509,7 @@ void TaskSegmentation1::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->bgr = ((TaskSegmentation0*)t)->bgr;
 	this->rbc_fw = ((TaskSegmentation0*)t)->rbc;
 
@@ -528,7 +530,7 @@ bool TaskSegmentation1::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation1::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) +
 
@@ -601,7 +603,7 @@ ReusableTask* Segmentation1Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation12 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation1", 
+bool registeredTaskSegmentation12 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation1",
 	&Segmentation1Factory1, &Segmentation1Factory2);
 
 TaskSegmentation2::TaskSegmentation2() {
@@ -611,7 +613,7 @@ TaskSegmentation2::TaskSegmentation2() {
 }
 
 TaskSegmentation2::TaskSegmentation2(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("fillHolesConnectivity") == 0) {
@@ -631,7 +633,7 @@ TaskSegmentation2::TaskSegmentation2(list<ArgumentBase*> args, RegionTemplate* i
 
 	bw1 = std::shared_ptr<cv::Mat>(new cv::Mat);
 	diffIm = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation2::~TaskSegmentation2() {
@@ -646,10 +648,10 @@ bool TaskSegmentation2::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation2 executing." << std::endl;	
+	std::cout << "TaskSegmentation2 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg3(fillHolesConnectivity, G1, &*rc, &*rc_recon, &*rc_open, &*bw1, &*diffIm);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -681,7 +683,7 @@ void TaskSegmentation2::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->rc = ((TaskSegmentation1*)t)->rc;
 	this->rc_recon = ((TaskSegmentation1*)t)->rc_recon;
 	this->rc_open = ((TaskSegmentation1*)t)->rc_open;
@@ -705,7 +707,7 @@ bool TaskSegmentation2::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation2::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) +
 		sizeof(int) +
@@ -788,7 +790,7 @@ ReusableTask* Segmentation2Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation22 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation2", 
+bool registeredTaskSegmentation22 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation2",
 	&Segmentation2Factory1, &Segmentation2Factory2);
 
 TaskSegmentation3::TaskSegmentation3() {
@@ -797,7 +799,7 @@ TaskSegmentation3::TaskSegmentation3() {
 }
 
 TaskSegmentation3::TaskSegmentation3(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("minSize") == 0) {
@@ -816,7 +818,7 @@ TaskSegmentation3::TaskSegmentation3(list<ArgumentBase*> args, RegionTemplate* i
 		std::cout << __FILE__ << ":" << __LINE__ <<" Missing common arguments on Segmentation" << std::endl;
 
 	bw1_t = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation3::~TaskSegmentation3() {
@@ -830,10 +832,10 @@ bool TaskSegmentation3::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation3 executing." << std::endl;	
+	std::cout << "TaskSegmentation3 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg4(minSize, maxSize, &*bw1, &*bw1_t);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -864,7 +866,7 @@ void TaskSegmentation3::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->bw1 = ((TaskSegmentation2*)t)->bw1;
 	this->rbc_fw = ((TaskSegmentation2*)t)->rbc_fw;
 	this->diffIm_fw = ((TaskSegmentation2*)t)->diffIm;
@@ -887,7 +889,7 @@ bool TaskSegmentation3::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation3::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) +
 		sizeof(int) +
@@ -970,7 +972,7 @@ ReusableTask* Segmentation3Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation32 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation3", 
+bool registeredTaskSegmentation32 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation3",
 	&Segmentation3Factory1, &Segmentation3Factory2);
 
 TaskSegmentation4::TaskSegmentation4() {
@@ -979,7 +981,7 @@ TaskSegmentation4::TaskSegmentation4() {
 }
 
 TaskSegmentation4::TaskSegmentation4(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("G2") == 0) {
@@ -993,7 +995,7 @@ TaskSegmentation4::TaskSegmentation4(list<ArgumentBase*> args, RegionTemplate* i
 		std::cout << __FILE__ << ":" << __LINE__ <<" Missing common arguments on Segmentation" << std::endl;
 
 	seg_open = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation4::~TaskSegmentation4() {
@@ -1007,10 +1009,10 @@ bool TaskSegmentation4::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation4 executing." << std::endl;	
+	std::cout << "TaskSegmentation4 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg5(G2, &*diffIm, &*bw1_t, &*rbc, &*seg_open);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -1041,7 +1043,7 @@ void TaskSegmentation4::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->diffIm = ((TaskSegmentation3*)t)->diffIm_fw;
 	this->bw1_t = ((TaskSegmentation3*)t)->bw1_t;
 	this->rbc = ((TaskSegmentation3*)t)->rbc_fw;
@@ -1063,7 +1065,7 @@ bool TaskSegmentation4::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation4::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) +
 
@@ -1136,7 +1138,7 @@ ReusableTask* Segmentation4Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation42 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation4", 
+bool registeredTaskSegmentation42 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation4",
 	&Segmentation4Factory1, &Segmentation4Factory2);
 
 TaskSegmentation5::TaskSegmentation5() {
@@ -1145,7 +1147,7 @@ TaskSegmentation5::TaskSegmentation5() {
 }
 
 TaskSegmentation5::TaskSegmentation5(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("normalized_rt") == 0) {
@@ -1174,7 +1176,7 @@ TaskSegmentation5::TaskSegmentation5(list<ArgumentBase*> args, RegionTemplate* i
 		std::cout << __FILE__ << ":" << __LINE__ <<" Missing common arguments on Segmentation" << std::endl;
 
 	seg_nonoverlap = std::shared_ptr<cv::Mat>(new cv::Mat);
-	
+
 }
 
 TaskSegmentation5::~TaskSegmentation5() {
@@ -1190,10 +1192,10 @@ bool TaskSegmentation5::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation5 executing." << std::endl;	
+	std::cout << "TaskSegmentation5 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg6(normalized_rt, minSizePl, watershedConnectivity, &*seg_open, &*seg_nonoverlap);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -1227,7 +1229,7 @@ void TaskSegmentation5::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->seg_open = ((TaskSegmentation4*)t)->seg_open;
 
 }
@@ -1249,7 +1251,7 @@ bool TaskSegmentation5::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation5::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) + (*this->normalized_rt_temp)->getName().length()*sizeof(char) + sizeof(int) +
 		sizeof(int) +
@@ -1367,7 +1369,7 @@ ReusableTask* Segmentation5Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation52 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation5", 
+bool registeredTaskSegmentation52 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation5",
 	&Segmentation5Factory1, &Segmentation5Factory2);
 
 TaskSegmentation6::TaskSegmentation6() {
@@ -1375,7 +1377,7 @@ TaskSegmentation6::TaskSegmentation6() {
 }
 
 TaskSegmentation6::TaskSegmentation6(list<ArgumentBase*> args, RegionTemplate* inputRt) {
-	
+
 	int set_cout = 0;
 	for(ArgumentBase* a : args){
 		if (a->getName().compare("segmented_rt") == 0) {
@@ -1408,7 +1410,7 @@ TaskSegmentation6::TaskSegmentation6(list<ArgumentBase*> args, RegionTemplate* i
 	if (set_cout < args.size())
 		std::cout << __FILE__ << ":" << __LINE__ <<" Missing common arguments on Segmentation" << std::endl;
 
-	
+
 }
 
 TaskSegmentation6::~TaskSegmentation6() {
@@ -1423,10 +1425,10 @@ bool TaskSegmentation6::run(int procType, int tid) {
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskSegmentation6 executing." << std::endl;	
+	std::cout << "TaskSegmentation6 executing." << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg7(&segmented_rt, minSizeSeg, maxSizeSeg, fillHolesConnectivity, &*seg_nonoverlap);
-	
+
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 	(*this->segmented_rt_temp)->setData(segmented_rt);
@@ -1457,7 +1459,7 @@ void TaskSegmentation6::resolveDependencies(ReusableTask* t) {
 		return;
 	}
 
-	
+
 	this->seg_nonoverlap = ((TaskSegmentation5*)t)->seg_nonoverlap;
 
 }
@@ -1480,7 +1482,7 @@ bool TaskSegmentation6::reusable(ReusableTask* rt) {
 }
 
 int TaskSegmentation6::size() {
-	return 
+	return
 		sizeof(int) + sizeof(int) +
 		sizeof(int) + (*this->segmented_rt_temp)->getName().length()*sizeof(char) + sizeof(int) +
 		sizeof(int) +
@@ -1608,6 +1610,5 @@ ReusableTask* Segmentation6Factory2() {
 }
 
 // register factory with the runtime system
-bool registeredTaskSegmentation62 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation6", 
+bool registeredTaskSegmentation62 = ReusableTask::ReusableTaskFactory::taskRegister("TaskSegmentation6",
 	&Segmentation6Factory1, &Segmentation6Factory2);
-

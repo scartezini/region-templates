@@ -13,6 +13,7 @@
 #include "TasksQueue.h"
 #include "ExecEngineConstants.h"
 
+using namespace std;
 
 class Task;
 class TasksQueue;
@@ -24,6 +25,7 @@ private:
 	// This structure maps the id of a given tasks to
 	// those tasks which the execution depends on it.
 	std::map<int, std::list<Task *> > dependencyMap;
+
 
 	// Lock used to guarantee atomic access to the dependentyMap
 	static pthread_mutex_t dependencyMapLock;
@@ -74,6 +76,7 @@ public:
     void unlock();
 	int getInputIoTaskId() const;
 	void setInputIoTaskId(int inputIoTaskId);
+
 };
 
 #endif /* TRACKDEPENDENCIES_H_ */

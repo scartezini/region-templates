@@ -27,6 +27,9 @@ private:
 	// Queue of tasks used ready to execute within this execution engine
 	TasksQueue *tasksQueue;
 
+	map<int, Task*> taskReferences;
+	map<int, vector<int> > taskDependecies;
+
 	int schedType;
 	bool dataLocalityAware;
 
@@ -100,6 +103,8 @@ public:
 	// of all other created within the calls of start and end transaction
 	void startTransaction(CallBackTaskBase *transactionTask);
 	void endTransaction();
+
+	void retrieveResources(Task* task, bool depFinished = false);
 
 };
 

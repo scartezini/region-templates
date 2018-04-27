@@ -280,7 +280,7 @@ void Worker::workerProcess()
 		long long t_recv = Util::ClockGetTime();
 
 	//	std::cout << "Worker: "<< this->getRank()<<" flag: " <<(int)flag<<std::endl;
-	
+
 		switch(flag){
 			case MessageTag::MANAGER_READY:
 			{
@@ -351,14 +351,15 @@ void Worker::workerProcess()
 					std::stringstream t_end_ss;
 					t_end_ss << t_end;
 
-					std::cout << "[WORKER_PROFILER] " << t0_ss.str() << " " << t_recv_ss.str() << " " 
-						<< t_isnull_ss.str() << " " << t_cache_ss.str() << " " 
-						<< t_callback_ss.str() << " " << t_run_ss.str() << " " 
+					std::cout << "[WORKER_PROFILER] " << t0_ss.str() << " " << t_recv_ss.str() << " "
+						<< t_isnull_ss.str() << " " << t_cache_ss.str() << " "
+						<< t_callback_ss.str() << " " << t_run_ss.str() << " "
 						<< t_end_ss.str() << std::endl;
 
 				}else{
 					std::cout << "Error: Failed to load PipelineComponent!"<<std::endl;
 				}
+
 				break;
 			}
 			case MessageTag::MANAGER_FINISHED:

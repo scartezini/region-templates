@@ -8,6 +8,7 @@
 #include "Task.h"
 #include <stdio.h>
 #include <exception>
+#include <time.h>
 
 int Task::instancesIdCounter = 1;
 pthread_mutex_t Task::taskCreationLock = PTHREAD_MUTEX_INITIALIZER;
@@ -41,6 +42,12 @@ Task::Task()
 	this->curExecEngine = NULL;
 	this->setTaskType(ExecEngineConstants::PROC_TASK);
 	this->setCallBackDepsReady(false);
+
+	srand (time(NULL));
+	this->cost = rand() % 10;
+	this->costlyPath = 0;
+
+	this->dependentsFinalized = 0;
 }
 
 
@@ -49,6 +56,7 @@ Task::~Task()
 //	std::cout << "~TASKID:" << this->getId()<< std::endl;
 	try{
 		if(curExecEngine != NULL){
+			this->curExecEngine->retrieveResources(this);
 			this->curExecEngine->resolveDependencies(this);
 		}
 
@@ -81,15 +89,15 @@ void Task::addDependencies(vector<int> dependenciesIds)
 }
 
 // Prints task dependencies
-void Task::printDependencies(void)
+void Task::printDependencies(ostream &stream)
 {
-	std::cout << "Task.id="<<this->getId()<<" #deps="<< this->dependencies.size()<< " :";
+	stream << "Task.id="<<this->getId()<<" #deps="<< this->dependencies.size()<< " :";
 	if(this->dependencies.size() > 0){
 		for(int i = 0; i < this->dependencies.size(); i++){
-			std::cout << this->dependencies[i] <<";";
+			stream << this->dependencies[i] <<";";
 		}
 	}
-	std::cout << std::endl;
+	stream << std::endl;
 }
 
 int Task::getNumberDependencies()
@@ -127,6 +135,7 @@ bool Task::isCallBackDepsReady() const
     return callBackDepsReady;
 }
 
+
 void Task::addDependency(Task *dependency)
 {
 	try{
@@ -136,6 +145,7 @@ void Task::addDependency(Task *dependency)
 		std::cout << e.what() << std::endl;
 	}
 }
+
 
 void Task::addArgument(TaskArgument* argument) {
 	this->taskArguments.push_back(argument);
@@ -235,9 +245,48 @@ bool Task::run(int procType, int tid)
 }
 
 
-CallBackTaskBase::CallBackTaskBase() {
-	this->setTaskType(ExecEngineConstants::TRANSACTION_TASK);
+int Task::getCost()
+{
+	return this->cost;
+}
 
+int Task::getCostlyPath()
+{
+	printf("GET COSTLY PATH: %d\n", this->costlyPath);
+	return this->costlyPath;
+}
+
+int Task::incrementDependentsFinished()
+{
+	return ++this->dependentsFinalized;
+}
+
+int Task::getNumberDependents()
+{
+	return this->dependentPointer.size();
+}
+
+int Task::getNumberDependentsFinished()
+{
+	return this->dependentsFinalized;
+}
+
+
+void Task::addDependentPointer(Task* task)
+{
+	try{
+		this->dependentPointer.push_back(task);
+	}catch(exception &e){
+		std::cout << __FILE__<<":"<< __LINE__<< ". Exception: failed to addDependencyPointer, input task address="<<task<<std::endl;
+		std::cout << e.what() << std::endl;
+	}
+
+}
+
+
+CallBackTaskBase::CallBackTaskBase()
+{
+	this->setTaskType(ExecEngineConstants::TRANSACTION_TASK);
 }
 
 CallBackTaskBase::~CallBackTaskBase() {
@@ -248,8 +297,3 @@ bool CallBackTaskBase::run(int procType, int tid)
 	std::cout <<"Warning. The \"run\" function from the CallBackTaskBase class is being executed. You should implement the run into the descendant CallBackTaskBase class!"<< std::endl;
 	return true;
 }
-
-
-
-
-
