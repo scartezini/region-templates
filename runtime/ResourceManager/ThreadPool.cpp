@@ -56,7 +56,7 @@ void *callThread(void *arg){
 		cv::gpu::GpuMat A_g(A);
 		A_g.release();
 #endif
-		
+
 	}else{
 		int cpuId=tid+2;
 
@@ -328,14 +328,14 @@ void ThreadPool::processTasks(int procType, int tid)
 
 					// make sure that prefetched upload is completed.
 					pStream->waitForCompletion();
-//					std::cout << "Proc prefetched data, not enqueueing another"<<std::endl;
+ //					std::cout << "Proc prefetched data, not enqueueing another"<<std::endl;
 
 					goto procPoint;
 				}else{
 					// If there is nothing to compute, check whether there is an asynchronous
 					// download in course, and solve it. This may potentially create other tasks
 					if(downloadingTask != NULL){
-//						std::cout<< "No other tasks available... resolve asyncDownload"<<std::endl;
+ //						std::cout<< "No other tasks available... resolve asyncDownload"<<std::endl;
 						// wait until download is complete
 						dStream->waitForCompletion();
 
@@ -365,8 +365,10 @@ void ThreadPool::processTasks(int procType, int tid)
 
 				if(curTask->getTaskType() == ExecEngineConstants::TRANSACTION_TASK){
 					curTask->run(procType, tid);
-				} 
-				
+					//this->execEngine->retrieveResources(curTask);
+				}
+
+				cerr << "Delete 1 Task: " << curTask->getId() << endl;
 				delete curTask;
 				continue;
 			}
@@ -383,7 +385,7 @@ void ThreadPool::processTasks(int procType, int tid)
 					curTask = prefetchTask;
 					prefetchTask = temp;
 					enqueueUploadTaskParameters(prefetchTask, *pStream);
-//					std::cout << "Proc prefetched data, enqueue another"<<std::endl;
+ //					std::cout << "Proc prefetched data, enqueue another"<<std::endl;
 
 				}else{
 					// If curTask is not NULL, and prefetch Taks is NULL there is a chance for performing
@@ -393,7 +395,7 @@ void ThreadPool::processTasks(int procType, int tid)
 						prefetchTask = curTask;
 						enqueueUploadTaskParameters(prefetchTask, *pStream);
 						curTask = NULL;
-//						std::cout << "Enqueue prefetched data"<<std::endl;
+ //						std::cout << "Enqueue prefetched data"<<std::endl;
 
 						// Try to get another task
 						continue;
@@ -417,9 +419,10 @@ void ThreadPool::processTasks(int procType, int tid)
 
 //		printf("StartTime:%f\n",(tSComp)/1000000);
 		try{
-			
+
 			std::cout << "Executing, task.id: "<< curTask->getId() << std::endl;
 			curTask->run(procType, tid);
+			//this->execEngine->retrieveResources(curTask);
 
 			if(curTask->getStatus() != ExecEngineConstants::ACTIVE){
 
@@ -429,6 +432,7 @@ void ThreadPool::processTasks(int procType, int tid)
 					deleteOutputParameters(curTask);
 				}
 #endif
+				cerr << "Delete 2 Task: " << curTask->getId() << endl;
 				delete curTask;
 
 				continue;
@@ -437,14 +441,14 @@ void ThreadPool::processTasks(int procType, int tid)
 #ifdef WITH_CUDA
 			if(this->dataLocalityAware){
 				if(procType ==  ExecEngineConstants::GPU){
-//					std::cout << "AFTER run: isDataLocalityAware!"<<std::endl;
+ //					std::cout << "AFTER run: isDataLocalityAware!"<<std::endl;
 					// 1) call pre-assignment.
 					preAssigned = curTask->tryPreassignment();
 				}
 			}
 			// check whether there is an asynchronous download in course, and solve it
 			if(downloadingTask != NULL){
-//				std::cout<< "After processing... resolve asyncDownload"<<std::endl;
+ //				std::cout<< "After processing... resolve asyncDownload"<<std::endl;
 				// wait until download is complete
 				dStream->waitForCompletion();
 
@@ -464,13 +468,13 @@ void ThreadPool::processTasks(int procType, int tid)
 					// if prefetching is not active, perform synchronous download
 					if(!prefetching){
 						downloadTaskOutputParameters(curTask, *stream);
-				
+
 						delete curTask;
 						curTask = NULL;
 					}else{
-//						downloadTaskOutputParameters(curTask, stream);
-//						delete curTask;
-//						std::cout<< "preAssigned Failed... start asyncDownload"<<std::endl;
+ //						downloadTaskOutputParameters(curTask, stream);
+ //						delete curTask;
+ //						std::cout<< "preAssigned Failed... start asyncDownload"<<std::endl;
 						// do the asynchronous one.
 						enqueueDownloadTaskParameters(curTask, *dStream);
 						downloadingTask = curTask;
@@ -499,6 +503,7 @@ void ThreadPool::processTasks(int procType, int tid)
 			}
 #endif
 			// TODO: delete any available GPU data, and continue (what if the CPU is cancelled)
+			cerr << "Delete 3 Task: " << curTask->getId() << endl;
 			delete curTask;
 			continue;
 		}
@@ -514,15 +519,16 @@ void ThreadPool::processTasks(int procType, int tid)
 
 		// October 04, 2013. Commenting out line bellow to work with GPUs without compiling w/ cuda/gpu suppport
 	//	if(procType == ExecEngineConstants::CPU){
-			try{	
+			try{
+				cerr << "Delete 4 Task: " << curTask->getId() << endl;
 				delete curTask;
 			}catch(...){
 				printf("ERROR DELETE\n");
 			}
 //		}
-		
-		
-		
+
+
+
 //		if(curTask != NULL)
 //			delete curTask;
 //
@@ -574,8 +580,3 @@ int ThreadPool::getCPUThreads()
 {
 	return numCPUThreads;
 }
-
-
-
-
-

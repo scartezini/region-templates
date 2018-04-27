@@ -1,7 +1,7 @@
 #include "fgm.hpp"
 
-void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineComponentBase*> &all_stages, 
-	const std::map<int, PipelineComponentBase*> &stages_ref, std::map<int, PipelineComponentBase*> &merged_stages, 
+void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineComponentBase*> &all_stages,
+	const std::map<int, PipelineComponentBase*> &stages_ref, std::map<int, PipelineComponentBase*> &merged_stages,
 	std::map<int, ArgumentBase*> expanded_args, int max_bucket_size, bool shuffle, string dakota_filename) {
 
 	// attempt merging for each stage type
@@ -11,16 +11,16 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 		filter_stages(all_stages, ref->second->getName(), current_stages, shuffle);
 
 		std::cout << "[merge_stages_fine_grain] Generating tasks..." << std::endl;
-		
+
 		// generate all tasks
 		int nrS = 0;
 		double max_nrS_mksp = 0;
 		for (list<PipelineComponentBase*>::iterator s=current_stages.begin(); s!=current_stages.end(); ) {
-			// if the stage isn't composed of reusable tasks then 
+			// if the stage isn't composed of reusable tasks then
 			(*s)->tasks = task_generator(ref->second->tasksDesc, *s, expanded_args);
 			if ((*s)->tasks.size() == 0) {
 				merged_stages[(*s)->getId()] = *s;
-				
+
 				// makespan calculations
 				nrS++;
 				if ((*s)->getMksp() > max_nrS_mksp)
@@ -72,19 +72,19 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 
 			case 2:
 				// smart recursive cut - ok
-				solution = recursive_cut(current_stages, all_stages, 
+				solution = recursive_cut(current_stages, all_stages,
 					max_bucket_size, max_cuts, expanded_args, ref->second->tasksDesc);
 				break;
 
 			case 3:
 				// reuse-tree merging - ok
-				solution = reuse_tree_merging(current_stages, all_stages, 
+				solution = reuse_tree_merging(current_stages, all_stages,
 					max_bucket_size, expanded_args, ref->second->tasksDesc, false);
 				break;
-			
+
 			case 4:
 				// reuse-tree merging with double prunning
-				solution = reuse_tree_merging(current_stages, all_stages, 
+				solution = reuse_tree_merging(current_stages, all_stages,
 					max_bucket_size, expanded_args, ref->second->tasksDesc, true);
 				break;
 		}
@@ -104,7 +104,8 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 			total_tasks += calc_stage_proc(b, expanded_args, ref->second->tasksDesc);
 			for (PipelineComponentBase* s : b) {
 				std::cout << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
-				// solution_file << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
+				solution_file << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
+
 			}
 		}
 		solution_file.close();

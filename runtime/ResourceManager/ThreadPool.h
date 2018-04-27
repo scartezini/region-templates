@@ -42,7 +42,7 @@ private:
 	bool dataLocalityAware;
 	bool prefetching;
 
-	// Is Execution done? Meaning that no more tasks will be inserted for computation within the system?
+	// Is Execution done? Meaning that no m	ore tasks will be inserted for computation within the system?
 	bool execDone;
 
 	// Pointer to the execution engine that instantiated this ThreadPool

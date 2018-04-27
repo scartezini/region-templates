@@ -10,11 +10,17 @@
 
 ExecutionEngine::ExecutionEngine(int cpuThreads, int gpuThreads, int queueType, bool dataLocalityAware, bool prefetching) {
 	schedType = queueType;
-	if(queueType ==ExecEngineConstants::FCFS_QUEUE){
-		tasksQueue = new TasksQueueFCFS(cpuThreads, gpuThreads);
-	}else{
-		tasksQueue = new TasksQueuePriority(cpuThreads, gpuThreads);
-	}
+
+//	if(queueType ==ExecEngineConstants::FCFS_QUEUE){
+//		tasksQueue = new TasksQueueFCFS(cpuThreads, gpuThreads);
+//	}else if(queueType == ExecEngineConstants::MEM_BLOCK_QUEUE){
+//		tasksQueue = new TasksQueueMB(cpuThreads, gpuThreads);
+//	}else{
+//		tasksQueue = new TasksQueuePriority(cpuThreads, gpuThreads);
+//	}
+
+	tasksQueue = new TasksQueueMB(cpuThreads, gpuThreads, 100);
+
 	threadPool = new ThreadPool(tasksQueue, this);
 	threadPool->createThreadPool(cpuThreads, NULL, gpuThreads, NULL, dataLocalityAware, prefetching);
 
@@ -37,6 +43,10 @@ bool ExecutionEngine::insertTask(Task *task)
 
 	// Resolve task dependencies and queue it for execution, or left the task pending waiting
 	this->trackDependencies->checkDependencies(task, this->tasksQueue);
+
+
+	this->taskReferences[task->getId()] = task;
+	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
 
 	return true;
 }
@@ -107,4 +117,32 @@ void ExecutionEngine::endTransaction()
 }
 
 
+void ExecutionEngine::retrieveResources(Task *task, bool depFinished)
+{
 
+
+
+	if(depFinished) {
+		task->incrementDependentsFinished();
+		cerr << "Depfinished: " << task->getId() << " : " << task->getNumberDependentsFinished() << "/" << task->getNumberDependents() << endl;
+	}
+
+	if(task->getNumberDependentsFinished() == task->getNumberDependents()) {
+		cerr << "Id: " << task->getId() << "\t- Cost: " << task->getCost() << endl;
+		this->tasksQueue->retrieveResources(task->getCost());
+
+		task->printDependencies();
+
+		cerr << "vector size: " << task->dependencies.size() << endl;
+		vector<int>::iterator it;
+		for(it = this->taskDependecies[task->getId()].begin(); it !=
+			this->taskDependecies[task->getId()].end(); it++) {
+
+			cerr << "Dependecies: " << *it << endl;
+
+			this->retrieveResources(this->taskReferences[*it], true);
+		}
+
+	}
+
+}

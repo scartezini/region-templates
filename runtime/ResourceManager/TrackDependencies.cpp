@@ -38,8 +38,6 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 		// notify about the end of execution
 		if(dependencyMapIt != dependencyMap.end()){
 			dependencyMapIt->second.push_back(task);
-			dependencyMapIt->second.size();
-
 		}else{
 			task->incrementDepenciesSolved();
 		}
@@ -52,7 +50,7 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 	if(this->transactionTask != NULL){
 		// Okay, add task as dependency of the transaction Task
 //		l.push_back(this->transactionTask);
-		this->transactionTask->addDependency(task->getId());
+		this->transactionTask->addDependency(task);
 	}
 
 	dependencyMap.insert(std::pair<int, list<Task *> >(task->getId(), l));
@@ -61,12 +59,12 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 	if(task->getNumberDependencies() == task->getNumberDependenciesSolved()){
 		// It always starts empty, and tasks are added as they are dispatched for execution
 		tq->insertTask(task);
-		// std::cout << "[dependency_test] stage " << task->getId() << " is solved: " 
+		// std::cout << "[dependency_test] stage " << task->getId() << " is solved: "
 		// 	<< task->getNumberDependenciesSolved() << " out of "
 		// 	<< task->getNumberDependencies() << std::endl;
 	}else{
 		this->incrementCountTasksPending();
-		// std::cout << "[dependency_test] stage " << task->getId() << " is pending with " 
+		// std::cout << "[dependency_test] stage " << task->getId() << " is pending with "
 		// 	<< task->getNumberDependenciesSolved() << " out of "
 		// 	<< task->getNumberDependencies() << " deps solved" << std::endl;
 	}

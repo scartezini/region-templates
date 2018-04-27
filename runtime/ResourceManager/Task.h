@@ -25,6 +25,13 @@ class Task {
 		// Estimated speedup of the current task to each available processor.
 		float speedups[ExecEngineConstants::NUM_PROC_TYPES];
 
+		// Path mais custso
+		int costlyPath;
+		int cost;
+
+		// Numero de dependentes que já foram finalizados
+		int dependentsFinalized;
+
 		// Unique identifier of the class instance.
 		int id;
 
@@ -43,8 +50,11 @@ class Task {
 		// that should execute before the current task is dispatch for execution.
 		vector<int> dependencies;
 
+
+		vector<Task*> dependentPointer;
+
 		// Number of dependencies solved: number of tasks that this task depends, and have
-		// 								  already finished the execution.
+		//  already finished the execution.
 		int numberDependenciesSolved;
 
 		// Is this a processing tasks, the default, or a transaction task -  only used to
@@ -78,6 +88,18 @@ class Task {
 		int uploadArgument(int index, cv::gpu::Stream& stream);
 		int downloadArgument(int index, cv::gpu::Stream& stream);
 
+		int getCostlyPath();
+		int getCost();
+
+		//Para controle de dependentes finalizados afim de restaurar
+		//os recursos gastos, de modo que
+		int incrementDependentsFinished();
+		int getNumberDependentsFinished();
+
+		void addDependentPointer(Task* task);
+
+		int getNumberDependents();
+
 		Task* tryPreassignment();
 
 		// Adds a single dependency.
@@ -102,7 +124,7 @@ class Task {
 		int incrementDepenciesSolved();
 
 		// Simple function used for debugging purposes
-		void printDependencies(void);
+		void printDependencies(ostream& stream = std::cerr);
 
 		// Assigns a speedup to this task for a given processor architecture.
 		void setSpeedup(int procType=ExecEngineConstants::GPU, float speedup=1.0);

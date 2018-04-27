@@ -15,6 +15,7 @@ public:
 	static const int FCFS_QUEUE=1;
 	static const int PRIORITY_QUEUE=2;
 	static const int DATA_LOCALITY_AWARE=3;
+	static const int MEM_BLOCK_QUEUE=4;
 
 	//! Type of task assigned to execution. Most of tasks are computing tasks,
 	// while there is a special type of tasks called transaction tasks that is used
