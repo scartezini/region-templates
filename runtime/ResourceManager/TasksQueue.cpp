@@ -47,6 +47,11 @@ void TasksQueue::retrieveResources(int res)
 	return;
 }
 
+void TasksQueue::giveResources(int res)
+{
+	return;
+}
+
 
 bool TasksQueueFCFS::insertTask(Task *task)
 {
@@ -303,6 +308,17 @@ void TasksQueueMB::retrieveResources(int memory)
 
 	this->available += memory;
 	std::cerr << "Retornou: " << memory <<  "\t Available: " << this->available << '\n';
+
+	pthread_mutex_unlock(&queueLock);
+
+}
+
+void TasksQueueMB::giveResources(int memory)
+{
+	pthread_mutex_lock(&queueLock);
+
+	this->available -= memory;
+	std::cerr << "Retirou por Data: " << memory <<  "\t Available: " << this->available << '\n';
 
 	pthread_mutex_unlock(&queueLock);
 

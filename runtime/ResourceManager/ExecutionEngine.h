@@ -104,7 +104,8 @@ public:
 	void startTransaction(CallBackTaskBase *transactionTask);
 	void endTransaction();
 
-	void retrieveResources(Task* task, bool depFinished = false);
+	void retrieveResources(Task* task);
+	void retrieveOutData(Task* task);
 
 };
 

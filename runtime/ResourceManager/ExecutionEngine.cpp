@@ -117,32 +117,31 @@ void ExecutionEngine::endTransaction()
 }
 
 
-void ExecutionEngine::retrieveResources(Task *task, bool depFinished)
+void ExecutionEngine::retrieveResources(Task *task)
 {
 
+	cerr <<  "Taks retrieve resources: " << task->getId() << endl;
+	this->tasksQueue->retrieveResources(task->getCost());
+	//this->tasksQueue->giveResources(task->getDataCost());
 
+	vector<int>::iterator it;
+	for(it = this->taskDependecies[task->getId()].begin(); it !=
+		this->taskDependecies[task->getId()].end(); it++) {
 
-	if(depFinished) {
-		task->incrementDependentsFinished();
-		cerr << "Depfinished: " << task->getId() << " : " << task->getNumberDependentsFinished() << "/" << task->getNumberDependents() << endl;
+		cerr << "Dependecies: " << *it << endl;
+		this->retrieveOutData(this->taskReferences[*it]);
 	}
 
+}
+
+void ExecutionEngine::retrieveOutData(Task *task)
+{
+	task->incrementDependentsFinished();
+
+	cerr << "Task: " << task->getId() << endl;
+	cerr << "dependentsFinalized: " << task->getNumberDependentsFinished() <<
+		"/" << task->getNumberDependents() << endl;
 	if(task->getNumberDependentsFinished() == task->getNumberDependents()) {
-		cerr << "Id: " << task->getId() << "\t- Cost: " << task->getCost() << endl;
-		this->tasksQueue->retrieveResources(task->getCost());
-
-		task->printDependencies();
-
-		cerr << "vector size: " << task->dependencies.size() << endl;
-		vector<int>::iterator it;
-		for(it = this->taskDependecies[task->getId()].begin(); it !=
-			this->taskDependecies[task->getId()].end(); it++) {
-
-			cerr << "Dependecies: " << *it << endl;
-
-			this->retrieveResources(this->taskReferences[*it], true);
-		}
-
+		//this->tasksQueue->retrieveResources(task->getDataCost());
 	}
-
 }

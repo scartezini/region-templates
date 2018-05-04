@@ -44,7 +44,8 @@ Task::Task()
 	this->setCallBackDepsReady(false);
 
 	srand (time(NULL));
-	this->cost = rand() % 10;
+	this->cost = rand() % 20 + 1;
+	this->dataCost = rand() % 10 + 1;
 	this->costlyPath = 0;
 
 	this->dependentsFinalized = 0;
@@ -250,6 +251,11 @@ int Task::getCost()
 	return this->cost;
 }
 
+int Task::getDataCost()
+{
+	return this->dataCost;
+}
+
 int Task::getCostlyPath()
 {
 	printf("GET COSTLY PATH: %d\n", this->costlyPath);
@@ -258,7 +264,8 @@ int Task::getCostlyPath()
 
 int Task::incrementDependentsFinished()
 {
-	return ++this->dependentsFinalized;
+	this->dependentsFinalized += 1;
+	return this->dependentsFinalized;
 }
 
 int Task::getNumberDependents()

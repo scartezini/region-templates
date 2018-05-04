@@ -154,9 +154,9 @@ PipelineComponentBase *Worker::receiveComponentInfoFromManager()
 	// Check the size of the input message
 	message_size = status.Get_count(MPI::CHAR);
 
+	//std::cout << "Msg size="<<message_size<<std::endl;
 	char *msg = new char[message_size];
 
-//	std::cout << "Msg size="<<message_size<<std::endl;
 
 	// get data from manager
 	this->comm_world.Recv(msg, message_size, MPI::CHAR, this->getManagerRank(), MessageTag::TAG_METADATA);
