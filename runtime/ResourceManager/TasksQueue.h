@@ -36,6 +36,7 @@ public:
 
 
 	virtual void retrieveResources(int res);
+	virtual void giveResources(int res);
 
 	// Unlock threads that may be waiting at the getTask function
 	void releaseThreads(int numThreads);
@@ -103,6 +104,7 @@ public:
 	Task* getByTaskId(int id);
 
 	void retrieveResources(int memory);
+	void giveResources(int memory); 
 
 };
 

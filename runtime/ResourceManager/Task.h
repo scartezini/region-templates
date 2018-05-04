@@ -29,6 +29,8 @@ class Task {
 		int costlyPath;
 		int cost;
 
+		int dataCost;
+
 		// Numero de dependentes que já foram finalizados
 		int dependentsFinalized;
 
@@ -90,6 +92,7 @@ class Task {
 
 		int getCostlyPath();
 		int getCost();
+		int getDataCost();
 
 		//Para controle de dependentes finalizados afim de restaurar
 		//os recursos gastos, de modo que

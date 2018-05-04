@@ -32,7 +32,7 @@ RTPipelineComponentBase::~RTPipelineComponentBase() {
 		std::map<std::string, RegionTemplate*>::iterator rtIt =  this->regionTemplates.begin();
 		for(; rtIt != this->regionTemplates.end(); rtIt++){
 			RegionTemplate *rt = rtIt->second;
-			delete rt;
+		//	delete rt;
 		}
 	}
 }
@@ -315,7 +315,7 @@ RegionTemplate* RTPipelineComponentBase::getRegionTemplateInstance(int index) {
 }
 
 void RTPipelineComponentBase::updateRegionTemplateInfo(RegionTemplate* rt) {
-	
+
 	long long t_0 = Util::ClockGetTime();
 
 	// there are two cases:
@@ -385,7 +385,7 @@ void RTPipelineComponentBase::updateRegionTemplateInfo(RegionTemplate* rt) {
 	std::stringstream t_end_ss;
 	t_end_ss << t_end;
 
-	std::cout << "[RTPCB_PROFILER] " << t_0_ss.str() << " " << t_get_inst << " "  << t_end_ss.str() << " " 
+	std::cout << "[RTPCB_PROFILER] " << t_0_ss.str() << " " << t_get_inst << " "  << t_end_ss.str() << " "
 		<< n_data_regs << std::endl;
 
 }
