@@ -43,6 +43,7 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 
 int main(int argc, char* argv[]) {
 
+    cout << "version: " << __cplusplus << endl;
 	// verify arguments
 	if (argc > 1 && string(argv[1]).compare("-h") == 0) {
 		cout << "usage: ./PipelineRTFS-NS-Diff-FGO -b <max bucket size> -dkt <dakota output file> -ma <merging algorithm> [-f] [-ncg] [-nn <number of nodes>]" << endl;
@@ -171,8 +172,8 @@ int main(int argc, char* argv[]) {
 		generate_pre_defined_stages(parameters_values_file, args, base_stages, workflow_outputs, 
 			expanded_args, expanded_stages, use_coarse_grain);
 
-		// mapprint(expanded_stages, expanded_args);
-		// mapprint(expanded_args);
+        mapprint(expanded_stages, expanded_args);
+        mapprint(expanded_args);
 
 		// add arguments to each stage
 		add_arguments_to_stages(expanded_stages, expanded_args);
@@ -226,6 +227,7 @@ int main(int argc, char* argv[]) {
 				}
 			}
 		}
+        //return 0;
 
 		//------------------------------------------------------------
 		// Add workflows to Manager to be executed
@@ -311,6 +313,7 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	} else {
+        //return 1;
 		int flag;
 		do {
 			MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD,

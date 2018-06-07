@@ -130,14 +130,20 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 					n_tasks += s->tasks.size();
 				}
 			}
-			// std::cout << "\tbucket with " << b.size() << " stages and cost "
-			// 	<< calc_stage_proc(b, expanded_args, ref->second->tasksDesc) << ":" << std::endl;
+			std::cout << "\tbucket with " << b.size() << " stages and cost "
+			 	<< calc_stage_proc(b, expanded_args, ref->second->tasksDesc) << ":" << std::endl;
 			solution_file << "\tbucket with " << b.size() << " stages and cost "
 				<< n_tasks << ":" << std::endl;
 			total_tasks += n_tasks;
 			for (PipelineComponentBase* s : b) {
-				// std::cout << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
-				// solution_file << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
+				std::cout << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
+				solution_file << "\t\tstage " << s->getId() << ":" << s->getName() << ":" << std::endl;
+
+                for (auto a : s->tasks){
+                    std::cout << "\t\t\ttask " << a->getId() << ":" << a->getTaskName() << ":" << a->size() << std::endl;
+                    solution_file << "\t\t\tstage " << a->getId() << ":" << a->getTaskName() << ":" << a->size() << ":" << std::endl;
+
+                }
 			}
 		}
 		solution_file.close();
@@ -154,15 +160,23 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 
 		statistics_file.close();
 
+
+
 		// merge all stages in each bucket, given that they are mergable
 		for (std::list<PipelineComponentBase*> bucket : solution) {
-			// std::cout << "bucket merging" << std::endl;
+            std::cout << "bucket merging" << std::endl;
 			std::list<PipelineComponentBase*> curr = merge_stages_full(bucket, expanded_args, ref->second->tasksDesc);
 			// send rem stages to merged_stages
 			for (PipelineComponentBase* s : curr) {
-				// std::cout << "\tadding stage " << s->getId() << std::endl;
+                std::cout << "\tadding stage " << s->getId() << std::endl;
 				merged_stages[s->getId()] = s;
-			}
-		}
+
+                for (ReusableTask* t : s->tasks){
+                    std::cout << "\t\ttask " << t->getId() << " " << t->getTaskName() << " parent: " << t->parentTask << ", size: " << t->size() << std::endl;
+
+                }
+            }
+        }
 	}
 }
+

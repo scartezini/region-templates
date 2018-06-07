@@ -532,22 +532,22 @@ list<list<PipelineComponentBase*>> reuse_tree_merging(
 
 	// keep prunning and rising the tree until the root height
 	while (reuse_tree.height > 2) {
-		// std::cout << "before:" << std::endl;
-		// print_reuse_tree(reuse_tree);
+        std::cout << "before:" << std::endl;
+        print_reuse_tree(reuse_tree);
 		// perform current height merging iteration
 		list<reuse_node_t*> leafs_parent_list = generate_leafs_parent_list(reuse_tree);
 		// print_leafs_parent_list(leafs_parent_list);
 		list<list<PipelineComponentBase*>> new_buckets = prune_leaf_level(
 			reuse_tree, leafs_parent_list, max_bucket_size, double_prunning);
-		// std::cout << "after:" << std::endl;
-		// print_reuse_tree(reuse_tree);
+        std::cout << "after:" << std::endl;
+        print_reuse_tree(reuse_tree);
 		move_reuse_tree_up(reuse_tree, leafs_parent_list);
 
 		// add new_buckets to final solution
 		solution.insert(solution.begin(), new_buckets.begin(), new_buckets.end());
 	}
 
-	// print_reuse_tree(reuse_tree);
+    print_reuse_tree(reuse_tree);
 
 	// add the remaining unmerged stages to the final solution as single stage buckets
 	if (reuse_tree.parents.size() > 0) {
