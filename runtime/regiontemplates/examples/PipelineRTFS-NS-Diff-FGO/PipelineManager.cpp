@@ -20,6 +20,8 @@
 #include "RTPipelineComponentBase.h"
 #include "RegionTemplateCollection.h"
 #include "ReusableTask.hpp"
+#include "dot.h"
+#include "test.hpp"
 
 #include "parsing.hpp"
 
@@ -187,7 +189,8 @@ int main(int argc, char* argv[]) {
 		fgm::merge_stages_fine_grain(merging_algorithm, expanded_stages, base_stages, merged_stages, 
 			expanded_args, max_bucket_size, n_nodes, shuffle, dakota_file);
 
-		gettimeofday(&end, NULL);
+        gettimeofday(&end, NULL);
+        DEBUG_PCBLIST_TO_DOT("test123", merged_stages);
 
 		long merge_time = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
 		ofstream merge_time_f(dakota_file + "-b" + to_string(max_bucket_size) + "merge_time.log", ios::app);
