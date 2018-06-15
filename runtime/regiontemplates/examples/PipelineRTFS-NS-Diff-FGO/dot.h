@@ -24,7 +24,8 @@ void DEBUG_PCBLIST_TO_DOT(const std::string& filename,
         os << "}" << std::endl;
         if (auto reused = s.second->reused) {
             // os << 's' << s.second->getId() << " [shape=plaintext,label=\"" <<
-            // s.second->getId() << "\\nReused:" << s.second->reused->getId();  os
+            // s.second->getId() << "\\nReused:" << s.second->reused->getId();
+            // os
             // << "\"]; " << std::endl;
             os << 's' << s.second->getId() << " -> s"
                << s.second->reused->getId();
