@@ -9,6 +9,7 @@ class TaskReorder {
     TaskReorder(std::list<ReusableTask *> &tasks) {
         for (ReusableTask *rt : tasks) {
             id2addr[rt->getId()] = rt;
+            rt->parentTasks.push_back(rt->parentTask);
             if (tree.count(rt->getId()) == 0) tree[rt->getId()] = {};
 
             if (rt->parentTask != -1)
@@ -44,7 +45,7 @@ class TaskReorder {
             if (!newParent) {
                 newParent = firstLeaf(node);
             } else {
-                id2addr[node]->parentTask = newParent;
+                id2addr[node]->parentTasks.push_back(newParent);
                 newParent = 0;
             }
         }
