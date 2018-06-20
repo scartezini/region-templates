@@ -130,8 +130,8 @@ int Segmentation::run() {
 		if (t->parentTask != -1) {
 			// cout << "\t\t\t[Segmentation] setting dep of " << t->getId() << " to " << prev_map[t->parentTask]->getId() << endl;
             t->addDependencies(t->parentTasks);
-			t->resolveDependencies(prev_map[t->parentTask]);
 		}
+        t->resolveDependencies(prev_map[t->parentTask]);
 
 		// add this task to parent list for future dependency resolution
 		prev_map[t->getId()] = t;

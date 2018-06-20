@@ -190,9 +190,11 @@ int main(int argc, char* argv[]) {
 			expanded_args, max_bucket_size, n_nodes, shuffle, dakota_file);
 
         gettimeofday(&end, NULL);
+        prepare_stages(merged_stages);
         DEBUG_PCBLIST_TO_DOT("test1", merged_stages);
         reorder_stages(merged_stages);
         DEBUG_PCBLIST_TO_DOT("test2", merged_stages);
+        //int a;
 
 		long merge_time = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
 		ofstream merge_time_f(dakota_file + "-b" + to_string(max_bucket_size) + "merge_time.log", ios::app);

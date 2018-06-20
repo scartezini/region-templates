@@ -9,7 +9,9 @@ class TaskReorder {
     TaskReorder(std::list<ReusableTask *> &tasks) {
         for (ReusableTask *rt : tasks) {
             id2addr[rt->getId()] = rt;
-            rt->parentTasks.push_back(rt->parentTask);
+            if (rt->parentTasks.empty())
+                rt->parentTasks.push_back(rt->parentTask);
+
             if (tree.count(rt->getId()) == 0) tree[rt->getId()] = {};
 
             if (rt->parentTask != -1)
@@ -74,4 +76,11 @@ void reorder_stages(std::map<int, PipelineComponentBase *> &stages) {
     }
 }
 
+void prepare_stages(std::map<int, PipelineComponentBase *> &stages) {
+    for (std::pair<const int, PipelineComponentBase *> s : stages) {
+        if (!s.second->tasks.empty()) {
+            TaskReorder tr(s.second->tasks);
+        }
+    }
+}
 #endif

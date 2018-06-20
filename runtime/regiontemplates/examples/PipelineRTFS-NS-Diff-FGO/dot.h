@@ -15,8 +15,15 @@ void DEBUG_PCBLIST_TO_DOT(const std::string& filename,
             os << t->getId() << " [shape=box,label=\"" << t->getId() << "\\n"
                << t->getTaskName();
             os << "\\nsize: " << t->size() << "\"]; " << std::endl;
-            if ((t->parentTask != -1)) {
-                os << t->parentTask << " -> " << t->getId() << ";" << std::endl;
+
+            for (int parent : t->parentTasks) {
+                if ((parent != -1)) {
+                    os << parent << " -> " << t->getId();
+                    if(parent == t->parentTask)
+                        os << ";\n";
+                    else
+                        os << " [color=blue];\n";
+                }
             }
         }
         os << 's' << s.second->getId() << " [shape=plaintext,label=\"\"]; "
@@ -47,9 +54,10 @@ void DEBUG_PCB_TO_DOT(const std::string& filename,
         os << t->getId() << " [shape=box,label=\"" << t->getId() << "\\n"
            << t->getTaskName();
         os << "\\nsize: " << t->size() << "\"]; " << std::endl;
-        if ((t->parentTask != -1)) {
-            os << t->parentTask << " -> " << t->getId() << ";" << std::endl;
-        }
+        for (int parent : t->parentTasks)
+            if ((parent != -1)) {
+                os << parent << " -> " << t->getId() << ";" << std::endl;
+            }
     }
     os << "}" << std::endl;
     os << "}" << std::endl;
