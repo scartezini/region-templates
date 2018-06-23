@@ -27,7 +27,7 @@ class ReusableTask: public Task {
 public:
 	// list of tasks' ids that are dependent on this task
 	int parentTask;
-	vector<int> parentTasks;
+    vector<int> parentTasks;
     int accumulate, height;
 
 	// if the task isn't going to be executed then it's a mock

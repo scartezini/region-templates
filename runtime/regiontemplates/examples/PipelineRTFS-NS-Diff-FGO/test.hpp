@@ -3,66 +3,34 @@
 #include <list>
 #include <unordered_map>
 #include <vector>
+#include "ReusableTask.hpp"
 
 class TaskReorder {
   public:
-    TaskReorder(std::list<ReusableTask *> &tasks) {
-        for (ReusableTask *rt : tasks) {
-            id2addr[rt->getId()] = rt;
-            if (rt->parentTasks.empty())
-                rt->parentTasks.push_back(rt->parentTask);
+    TaskReorder(std::list<ReusableTask *> &tasks);
 
-            if (tree.count(rt->getId()) == 0) tree[rt->getId()] = {};
+    void print(int origin = 0, int level = 0) const;
 
-            if (rt->parentTask != -1)
-                tree[rt->parentTask].push_back(rt->getId());
-            else
-                root = rt->getId();
-        }
-    }
+    void mergeTest();
 
-    void print(int origin = 0, int level = 0) const {
-        if (origin < 0) return;
-        if (!origin) origin = root;
+    int firstLeaf(int node);
 
-        for (int i = 0; i < level; ++i) std::cout << '\t';
-
-        std::cout << origin << std::endl;
-
-        for (int rt : tree.at(origin)) print(rt, level + 1);
-    }
-
-    void mergeTest() {
-        int max = 0;
-        int maxId = 0;
-        for (auto node : tree) {
-            if (node.second.size() > max) {
-                maxId = node.first;
-                max = node.second.size();
-            }
-        }
-
-        int newParent = 0;
-        for (auto node : tree[maxId]) {
-            if (!newParent) {
-                newParent = firstLeaf(node);
-            } else {
-                id2addr[node]->parentTasks.push_back(newParent);
-                newParent = 0;
-            }
-        }
-    }
-
-    int firstLeaf(int node) {
-        while (tree[node].size() != 0) {
-            node = tree[node].back();
-        }
-        return node;
-    }
+    void apply();
 
   private:
-    std::unordered_map<int, std::vector<int>> tree;
+    class node {
+      public:
+        int id = 0;
+        int parent = 0;
+        std::vector<int> children;
+        int height = 0;
+        int level = 0;
+        ReusableTask *prt = nullptr;
+    };
+
+    std::unordered_map<int, std::vector<int>> tree2;
     std::unordered_map<int, ReusableTask *> id2addr;
+    std::unordered_map<int, node> tree;
     int root = 0;
 };
 
