@@ -190,7 +190,6 @@ int main(int argc, char* argv[]) {
 			expanded_args, max_bucket_size, n_nodes, shuffle, dakota_file);
 
         gettimeofday(&end, NULL);
-        prepare_stages(merged_stages);
         DEBUG_PCBLIST_TO_DOT("test1", merged_stages);
         reorder_stages(merged_stages);
         DEBUG_PCBLIST_TO_DOT("test2", merged_stages);

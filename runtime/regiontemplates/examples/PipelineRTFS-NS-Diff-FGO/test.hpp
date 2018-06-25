@@ -1,6 +1,8 @@
 #ifndef TEST_HPP
 #define TEST_HPP
 #include <list>
+#include <fstream>
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 #include "ReusableTask.hpp"
@@ -8,15 +10,13 @@
 class TaskReorder {
   public:
     TaskReorder(std::list<ReusableTask *> &tasks);
+    ~TaskReorder();
 
     void print(int origin = 0, int level = 0) const;
 
-    void mergeTest();
+    void thinning(int maxWidth);
 
-    int firstLeaf(int node);
-
-    void apply();
-
+    int stage = 0;
   private:
     class node {
       public:
@@ -28,27 +28,29 @@ class TaskReorder {
         ReusableTask *prt = nullptr;
     };
 
-    std::unordered_map<int, std::vector<int>> tree2;
-    std::unordered_map<int, ReusableTask *> id2addr;
     std::unordered_map<int, node> tree;
     int root = 0;
+
+    void changeParent(int child, int newParent);
+    int updateHeight(int id);
+    void updateLevel(int id, int level);
+    void removeChild(int child, std::vector<int> &children);
+    int shortestLeaf(std::vector<int> nodes);
+    std::vector<int> brothers(int id);
+    std::vector<int> filterLevel(int level);
+    int child2remove(std::vector<int> nodes);
+    void printDOT(std::string filename);
+    void writeTree();
 };
 
 void reorder_stages(std::map<int, PipelineComponentBase *> &stages) {
     for (std::pair<const int, PipelineComponentBase *> s : stages) {
         if (!s.second->tasks.empty()) {
             TaskReorder tr(s.second->tasks);
-            tr.print();
-            tr.mergeTest();
+            tr.stage = s.second->getId();
+            tr.thinning(4);
         }
     }
 }
 
-void prepare_stages(std::map<int, PipelineComponentBase *> &stages) {
-    for (std::pair<const int, PipelineComponentBase *> s : stages) {
-        if (!s.second->tasks.empty()) {
-            TaskReorder tr(s.second->tasks);
-        }
-    }
-}
 #endif

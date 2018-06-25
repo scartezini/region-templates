@@ -16,13 +16,13 @@ void DEBUG_PCBLIST_TO_DOT(const std::string& filename,
                << t->getTaskName();
             os << "\\nsize: " << t->size() << "\"]; " << std::endl;
 
+            if(t->parentTask != -1)
+            {
+                os << t->parentTask << " -> " << t->getId() << ";\n";
+            }
             for (int parent : t->parentTasks) {
-                if ((parent != -1)) {
-                    os << parent << " -> " << t->getId();
-                    if(parent == t->parentTask)
-                        os << ";\n";
-                    else
-                        os << " [color=blue];\n";
+                if (parent != t->parentTask) {
+                    os << parent << " -> " << t->getId() << " [color=blue];\n";
                 }
             }
         }
