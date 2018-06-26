@@ -7,6 +7,26 @@
 
 #include "Worker.h"
 
+void DEBUG_PCB_TO_DOT(const std::string& filename,
+                      PipelineComponentBase* stage) {
+    std::ofstream os(filename + std::to_string(stage->getId()) + ".dot");
+
+    os << "digraph graphname {" << std::endl;
+    os << "subgraph cluster" << stage->getId() << " {" << std::endl;
+    os << "label = \"Bucket " << stage->getId() << "\";" << std::endl;
+    for (ReusableTask* t : stage->tasks) {
+        os << t->getId() << " [shape=box,label=\"" << t->getId() << "\\n"
+           << t->getTaskName();
+		os << "\\nordem: " << t->getOrdem();
+        os << "\\nsize: " << t->size() << "\"]; " << std::endl;
+		if(t->parentTask != -1) {
+			os << t->parentTask << " -> " << t->getId() << ";\n";
+		}
+    }
+    os << "}" << std::endl;
+    os << "}" << std::endl;
+}
+
 /*Worker::Worker(const MPI::Intracomm& comm_world, const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const bool dataLocalityAware, const bool prefetching) {
 	this->manager_rank = manager_rank;
 	this->rank = rank;
@@ -325,6 +345,7 @@ void Worker::workerProcess()
 
 					// Execute component function that instantiates tasks within the execution engine
 					pc->run();
+					DEBUG_PCB_TO_DOT("test", pc);
 
 					long long t_run = Util::ClockGetTime();
 

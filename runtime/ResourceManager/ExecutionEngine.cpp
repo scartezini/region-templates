@@ -19,7 +19,7 @@ ExecutionEngine::ExecutionEngine(int cpuThreads, int gpuThreads, int queueType, 
 //		tasksQueue = new TasksQueuePriority(cpuThreads, gpuThreads);
 //	}
 
-	tasksQueue = new TasksQueueMB(cpuThreads, gpuThreads, 100);
+	tasksQueue = new TasksQueueMB(cpuThreads, gpuThreads, 4);
 
 	threadPool = new ThreadPool(tasksQueue, this);
 	threadPool->createThreadPool(cpuThreads, NULL, gpuThreads, NULL, dataLocalityAware, prefetching);
@@ -39,14 +39,14 @@ ExecutionEngine::~ExecutionEngine() {
 
 bool ExecutionEngine::insertTask(Task *task)
 {
+	cerr << "Insert: " << task->getId() << " : " << task->getCost() << endl;
+	this->taskReferences[task->getId()] = TaskReferences(task);
+	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
+
 	task->curExecEngine = this;
 
 	// Resolve task dependencies and queue it for execution, or left the task pending waiting
 	this->trackDependencies->checkDependencies(task, this->tasksQueue);
-
-
-	this->taskReferences[task->getId()] = task;
-	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
 
 	return true;
 }
@@ -117,31 +117,47 @@ void ExecutionEngine::endTransaction()
 }
 
 
-void ExecutionEngine::retrieveResources(Task *task)
+void ExecutionEngine::retrieveResources(int id)
 {
 
-	cerr <<  "Taks retrieve resources: " << task->getId() << endl;
-	this->tasksQueue->retrieveResources(task->getCost());
-	//this->tasksQueue->giveResources(task->getDataCost());
+	cerr <<  "Taks retrieve resources: " << id << endl;
+	this->tasksQueue->retrieveResources(taskReferences[id].cost);
+	if(taskReferences[id].nDep > 0)
+		this->tasksQueue->giveResources(taskReferences[id].dataCost);
 
 	vector<int>::iterator it;
-	for(it = this->taskDependecies[task->getId()].begin(); it !=
-		this->taskDependecies[task->getId()].end(); it++) {
+	for(it = this->taskDependecies[id].begin(); it !=
+		this->taskDependecies[id].end(); it++) {
 
 		cerr << "Dependecies: " << *it << endl;
-		this->retrieveOutData(this->taskReferences[*it]);
+		this->retrieveOutData(*it);
 	}
+
 
 }
 
-void ExecutionEngine::retrieveOutData(Task *task)
+void ExecutionEngine::retrieveOutData(int id)
 {
-	task->incrementDependentsFinished();
 
-	cerr << "Task: " << task->getId() << endl;
-	cerr << "dependentsFinalized: " << task->getNumberDependentsFinished() <<
-		"/" << task->getNumberDependents() << endl;
-	if(task->getNumberDependentsFinished() == task->getNumberDependents()) {
-		//this->tasksQueue->retrieveResources(task->getDataCost());
+
+	taskReferences[id].nDepFinished += 1;
+
+	cerr << "Task: " << id << endl;
+	cerr << "dependentsFinalized: " << taskReferences[id].nDepFinished <<
+		"/" << taskReferences[id].nDep << endl;
+	if(taskReferences[id].nDepFinished == taskReferences[id].nDep) {
+		this->tasksQueue->retrieveResources(taskReferences[id].dataCost);
 	}
+
+
+}
+
+TaskReferences::TaskReferences(Task* task)
+{
+	nDep = task->getNumberDependents();
+	nDepFinished = task->getNumberDependentsFinished();
+	dataCost = task->getDataCost();
+	cost = task->getCost();
+	ordem = task->getOrdem();
+
 }

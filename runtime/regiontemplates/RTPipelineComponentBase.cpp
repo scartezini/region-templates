@@ -32,7 +32,7 @@ RTPipelineComponentBase::~RTPipelineComponentBase() {
 		std::map<std::string, RegionTemplate*>::iterator rtIt =  this->regionTemplates.begin();
 		for(; rtIt != this->regionTemplates.end(); rtIt++){
 			RegionTemplate *rt = rtIt->second;
-		//	delete rt;
+			delete rt;
 		}
 	}
 }
@@ -403,16 +403,17 @@ void RTPipelineComponentBase::addInputOutputDataRegion(
 		std::string regionTemplateName, std::string dataRegionName, int type) {
 	switch(type){
 		case RTPipelineComponentBase::INPUT:
-			this->input_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->input_data_regions.emplace(regionTemplateName,dataRegionName);
 			break;
 		case RTPipelineComponentBase::OUTPUT:
 
-			this->output_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->output_data_regions.emplace(regionTemplateName,
+				dataRegionName);
 			break;
 
 		case RTPipelineComponentBase::INPUT_OUTPUT:
-			this->input_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
-			this->output_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->input_data_regions.emplace(regionTemplateName, dataRegionName);
+			this->output_data_regions.emplace(regionTemplateName, dataRegionName);
 			break;
 		default:
 			std::cout << "Error: unknown data region relation type (input, ouput,etc): "<< type << std::endl;

@@ -26,10 +26,12 @@ class Task {
 		float speedups[ExecEngineConstants::NUM_PROC_TYPES];
 
 		// Path mais custso
-		int costlyPath;
-		int cost;
+		int costlyPath = 0;
+		int cost = 1;
+		int dataCost = 0;
 
-		int dataCost;
+		int ordem = 0;
+
 
 		// Numero de dependentes que já foram finalizados
 		int dependentsFinalized;
@@ -93,6 +95,8 @@ class Task {
 		int getCostlyPath();
 		int getCost();
 		int getDataCost();
+		int getOrdem();
+		void setOrdem(int o);
 
 		//Para controle de dependentes finalizados afim de restaurar
 		//os recursos gastos, de modo que
