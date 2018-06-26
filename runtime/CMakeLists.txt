@@ -6,7 +6,7 @@ project(Runtime)
 set(Runtime_VERSION_MAJOR 1)
 set(Runtime_VERSION_MINOR 0)
 
-add_definitions( -ggdb -gdwarf-2 )
+add_definitions( -std=c++11 -ggdb -gdwarf-2 )
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING

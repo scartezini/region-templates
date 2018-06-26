@@ -43,10 +43,6 @@ Task::Task()
 	this->setTaskType(ExecEngineConstants::PROC_TASK);
 	this->setCallBackDepsReady(false);
 
-	srand (time(NULL));
-	this->cost = rand() % 20 + 1;
-	this->dataCost = rand() % 10 + 1;
-	this->costlyPath = 0;
 
 	this->dependentsFinalized = 0;
 }
@@ -57,7 +53,7 @@ Task::~Task()
 //	std::cout << "~TASKID:" << this->getId()<< std::endl;
 	try{
 		if(curExecEngine != NULL){
-			this->curExecEngine->retrieveResources(this);
+			this->curExecEngine->retrieveResources(this->getId());
 			this->curExecEngine->resolveDependencies(this);
 		}
 
@@ -249,6 +245,16 @@ bool Task::run(int procType, int tid)
 int Task::getCost()
 {
 	return this->cost;
+}
+
+int Task::getOrdem()
+{
+	return this->ordem;
+}
+
+void Task::setOrdem(int o)
+{
+	this->ordem = o;
 }
 
 int Task::getDataCost()

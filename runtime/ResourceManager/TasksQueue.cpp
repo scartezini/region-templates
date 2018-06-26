@@ -239,7 +239,7 @@ bool TasksQueueMB::insertTask(Task *task)
 {
 	pthread_mutex_lock(&queueLock);
 
-	this->memBlockQueue.push_back(task);
+	this->memBlockQueue.push_front(task);
 
 	pthread_mutex_unlock(&queueLock);
 	sem_post(&tasksToBeProcessed);
@@ -258,10 +258,10 @@ Task* TasksQueueMB::getTask(int procType)
 	//se puder se jogado para execução va
 	for (list<Task*>::iterator it = memBlockQueue.begin(); it != memBlockQueue.end(); ++it ) {
 		//if ((*it)->getCostlyPath() <= this->available) {
-		if(true) {
+		if((*it)->getCost() <= this->available) {
 			this->tasksQueue.push_back((*it));
-			//cerr << "AVAILABLE: " << this->available << endl;
 			this->available -= (*it)->getCost();
+			cerr << "Task: " << (*it)->getId() << " Retirou: " << (*it)->getCost() << " Available: " << this->available << endl;
 			//cerr << "COST: " << (*it)->getCost() << endl;
 			//cerr << "AVAILABLE: " << this->available << endl;
 			this->memBlockQueue.erase(it--);
@@ -270,18 +270,12 @@ Task* TasksQueueMB::getTask(int procType)
 
 	if(tasksQueue.size() > 0){
 		retTask = tasksQueue.front();
-		//		tasksQueue.pop_front();
-#ifdef	LOAD_BALANCING
-		if(ExecEngineConstants::CPU == procType){
-			float taskSpeedup = retTask->getSpeedup(ExecEngineConstants::GPU);
-			if( this->gpuThreads * taskSpeedup > tasksQueue.size()){
-				retTask = NULL;
-			}
-		}
-#endif
-		if(retTask != NULL)
+
+		if(retTask != NULL){
 			tasksQueue.pop_front();
+		}
 	}
+	retTask->setOrdem(curr++);
 	pthread_mutex_unlock(&queueLock);
 	return retTask;
 

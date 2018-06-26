@@ -21,17 +21,32 @@ class TasksQueue;
 class ThreadPool;
 class TrackDependencies;
 
+
+class TaskReferences {
+public:
+
+	TaskReferences(){}
+	TaskReferences(Task* task);
+	int nDep;
+	int nDepFinished;
+	int cost;
+	int dataCost;
+	int ordem;
+
+};
+
 class ExecutionEngine {
 
 private:
 	// Queue of tasks used ready to execute within this execution engine
 	TasksQueue *tasksQueue;
 
-	map<int, Task*> taskReferences;
+	map<int, TaskReferences> taskReferences;
 	map<int, vector<int> > taskDependecies;
 
 	int schedType;
 	bool dataLocalityAware;
+
 
 	// Pool of threads that are consuming tasks from the associated queue of tasks
 	ThreadPool *threadPool;
@@ -104,8 +119,8 @@ public:
 	void startTransaction(CallBackTaskBase *transactionTask);
 	void endTransaction();
 
-	void retrieveResources(Task* task);
-	void retrieveOutData(Task* task);
+	void retrieveResources(int taskId);
+	void retrieveOutData(int taskId);
 
 };
 

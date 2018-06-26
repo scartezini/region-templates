@@ -89,6 +89,7 @@ private:
 
 
 	int available;
+	int curr = 0;
 
 public:
 	TasksQueueMB(int cpuThreads, int gpuThreads, int available){
@@ -104,7 +105,7 @@ public:
 	Task* getByTaskId(int id);
 
 	void retrieveResources(int memory);
-	void giveResources(int memory); 
+	void giveResources(int memory);
 
 };
 
