@@ -19,6 +19,7 @@
 #include "DataPack.h"
 #include "Util.h"
 
+
 #ifdef	WITH_DATA_SPACES
 extern "C" {
 #include "dataspaces.h"

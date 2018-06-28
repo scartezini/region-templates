@@ -31,8 +31,6 @@ public:
 	int nDepFinished;
 	int cost;
 	int dataCost;
-	int ordem;
-
 };
 
 class ExecutionEngine {

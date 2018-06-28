@@ -28,6 +28,8 @@
 
 #include "debug_funs.hpp"
 
+#include "dot.h"
+
 using namespace std;
 
 // Workflow generation functions
@@ -169,6 +171,8 @@ int main(int argc, char* argv[]) {
 			expanded_args, max_bucket_size, shuffle, dakota_file);
 
 		gettimeofday(&end, NULL);
+//		DEBUG_PCBLIST_TO_DOT_HIGHLIGHT("dot/hl", merged_stages.at(993), "arqgif");
+//	exit(0);
 
 		long merge_time = ((end.tv_sec * 1000000 + end.tv_usec) - (start.tv_sec * 1000000 + start.tv_usec));
 		ofstream merge_time_f(dakota_file + "-b" + to_string(max_bucket_size) + "merge_time.log", ios::app);

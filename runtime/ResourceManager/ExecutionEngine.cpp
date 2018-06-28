@@ -39,7 +39,14 @@ ExecutionEngine::~ExecutionEngine() {
 
 bool ExecutionEngine::insertTask(Task *task)
 {
-	cerr << "Insert: " << task->getId() << " : " << task->getCost() << endl;
+#if DEBUG
+	cout << "Insert: " << task->getId() << " : " << task->getCost() << endl;
+#endif
+	std::ofstream os;
+	os.open("running", std::ios_base::app);
+	os << "Insert: " << task->getId() << " : " << task->getCost() << endl;
+	os.close();
+
 	this->taskReferences[task->getId()] = TaskReferences(task);
 	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
 
@@ -120,16 +127,19 @@ void ExecutionEngine::endTransaction()
 void ExecutionEngine::retrieveResources(int id)
 {
 
-	cerr <<  "Taks retrieve resources: " << id << endl;
-	this->tasksQueue->retrieveResources(taskReferences[id].cost);
+#if DEBUG
+	cout <<  "Taks retrieve resources: " << id << endl;
+#endif
+	this->tasksQueue->retrieveResources(taskReferences[id].cost, id);
 	if(taskReferences[id].nDep > 0)
 		this->tasksQueue->giveResources(taskReferences[id].dataCost);
 
 	vector<int>::iterator it;
 	for(it = this->taskDependecies[id].begin(); it !=
 		this->taskDependecies[id].end(); it++) {
-
-		cerr << "Dependecies: " << *it << endl;
+#if DEBUG
+		cout << "Dependecies: " << *it << endl;
+#endif
 		this->retrieveOutData(*it);
 	}
 
@@ -142,11 +152,13 @@ void ExecutionEngine::retrieveOutData(int id)
 
 	taskReferences[id].nDepFinished += 1;
 
-	cerr << "Task: " << id << endl;
-	cerr << "dependentsFinalized: " << taskReferences[id].nDepFinished <<
+#if DEFINE
+	cout << "Task: " << id << endl;
+	cout << "dependentsFinalized: " << taskReferences[id].nDepFinished <<
 		"/" << taskReferences[id].nDep << endl;
+#endif
 	if(taskReferences[id].nDepFinished == taskReferences[id].nDep) {
-		this->tasksQueue->retrieveResources(taskReferences[id].dataCost);
+		this->tasksQueue->retrieveResources(taskReferences[id].dataCost, id);
 	}
 
 
@@ -158,6 +170,4 @@ TaskReferences::TaskReferences(Task* task)
 	nDepFinished = task->getNumberDependentsFinished();
 	dataCost = task->getDataCost();
 	cost = task->getCost();
-	ordem = task->getOrdem();
-
 }

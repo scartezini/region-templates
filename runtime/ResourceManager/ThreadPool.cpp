@@ -368,7 +368,6 @@ void ThreadPool::processTasks(int procType, int tid)
 					//this->execEngine->retrieveResources(curTask);
 				}
 
-				cerr << "Delete 1 Task: " << curTask->getId() << endl;
 				delete curTask;
 				continue;
 			}
@@ -432,7 +431,6 @@ void ThreadPool::processTasks(int procType, int tid)
 					deleteOutputParameters(curTask);
 				}
 #endif
-				cerr << "Delete 2 Task: " << curTask->getId() << endl;
 				delete curTask;
 
 				continue;
@@ -503,7 +501,6 @@ void ThreadPool::processTasks(int procType, int tid)
 			}
 #endif
 			// TODO: delete any available GPU data, and continue (what if the CPU is cancelled)
-			cerr << "Delete 3 Task: " << curTask->getId() << endl;
 			delete curTask;
 			continue;
 		}
@@ -520,7 +517,6 @@ void ThreadPool::processTasks(int procType, int tid)
 		// October 04, 2013. Commenting out line bellow to work with GPUs without compiling w/ cuda/gpu suppport
 	//	if(procType == ExecEngineConstants::CPU){
 			try{
-				cerr << "Delete 4 Task: " << curTask->getId() << endl;
 				delete curTask;
 			}catch(...){
 				printf("ERROR DELETE\n");
