@@ -42,7 +42,7 @@ int TasksQueue::getSize()
 	return 0;
 }
 
-void TasksQueue::retrieveResources(int res)
+void TasksQueue::retrieveResources(int res, int id)
 {
 	return;
 }
@@ -261,9 +261,19 @@ Task* TasksQueueMB::getTask(int procType)
 		if((*it)->getCost() <= this->available) {
 			this->tasksQueue.push_back((*it));
 			this->available -= (*it)->getCost();
-			cerr << "Task: " << (*it)->getId() << " Retirou: " << (*it)->getCost() << " Available: " << this->available << endl;
+
+			runningId.push_back((*it)->getId());
+#if DEBUG
+			cout << "Task: " << (*it)->getId() << " Retirou: " << (*it)->getCost() << " Available: " << this->available << endl;
 			//cerr << "COST: " << (*it)->getCost() << endl;
 			//cerr << "AVAILABLE: " << this->available << endl;
+			//std::ofstream os;
+			//os.open("running", std::ios_base::app);
+			//os << "entrou: " << (*it)->getId() << std::endl;
+			//os.close();
+			outRunning();
+#endif
+
 			this->memBlockQueue.erase(it--);
 		}
 	}
@@ -275,7 +285,6 @@ Task* TasksQueueMB::getTask(int procType)
 			tasksQueue.pop_front();
 		}
 	}
-	retTask->setOrdem(curr++);
 	pthread_mutex_unlock(&queueLock);
 	return retTask;
 
@@ -296,13 +305,24 @@ int TasksQueueMB::getSize()
 }
 
 
-void TasksQueueMB::retrieveResources(int memory)
+void TasksQueueMB::retrieveResources(int memory, int id)
 {
 	pthread_mutex_lock(&queueLock);
 
 	this->available += memory;
-	std::cerr << "Retornou: " << memory <<  "\t Available: " << this->available << '\n';
+	runningId.remove(id);
 
+#if DEBUG
+	std::cout << "Retornou: " << memory <<  "\t Available: "
+			  << this->available << '\n';
+	//std::ofstream os;
+	//os.open("running", std::ios_base::app);
+	//os << "retrive: " << id << std::endl;
+	//os << "Retornou: " << memory <<  "\t Available: "
+	//   << this->available << '\n';
+	//os.close();
+	outRunning();
+#endif
 	pthread_mutex_unlock(&queueLock);
 
 }
@@ -312,10 +332,23 @@ void TasksQueueMB::giveResources(int memory)
 	pthread_mutex_lock(&queueLock);
 
 	this->available -= memory;
-	std::cerr << "Retirou por Data: " << memory <<  "\t Available: " << this->available << '\n';
+#if DEBUG
+	std::cout << "Retirou por Data: " << memory <<  "\t Available: "
+			  << this->available << '\n';
+#endif
 
 	pthread_mutex_unlock(&queueLock);
 
 }
 
 Task* TasksQueueMB::getByTaskId(int id){}
+
+void TasksQueueMB::outRunning() {
+	std::ofstream os;
+	os.open("running", std::ios_base::app);
+
+	for (int i : this->runningId) {
+		os << i << '\t';
+	}
+	os << std::endl;
+}

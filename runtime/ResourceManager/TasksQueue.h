@@ -10,6 +10,9 @@
 
 #include <map>
 #include <list>
+#include <iostream>
+#include <fstream>
+
 #include <semaphore.h>
 #include "Task.h"
 #include "ExecEngineConstants.h"
@@ -35,7 +38,7 @@ public:
 	virtual Task* getByTaskId(int id);
 
 
-	virtual void retrieveResources(int res);
+	virtual void retrieveResources(int res, int id);
 	virtual void giveResources(int res);
 
 	// Unlock threads that may be waiting at the getTask function
@@ -87,6 +90,8 @@ private:
 	list<Task*> tasksQueue;
 	list<Task*> memBlockQueue;
 
+	list<int> runningId;
+
 
 	int available;
 	int curr = 0;
@@ -104,8 +109,10 @@ public:
 	int getSize();
 	Task* getByTaskId(int id);
 
-	void retrieveResources(int memory);
+	void retrieveResources(int memory, int id);
 	void giveResources(int memory);
+
+	void outRunning();
 
 };
 

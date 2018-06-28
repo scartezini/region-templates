@@ -247,16 +247,6 @@ int Task::getCost()
 	return this->cost;
 }
 
-int Task::getOrdem()
-{
-	return this->ordem;
-}
-
-void Task::setOrdem(int o)
-{
-	this->ordem = o;
-}
-
 int Task::getDataCost()
 {
 	return this->dataCost;
