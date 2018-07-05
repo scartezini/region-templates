@@ -21,7 +21,7 @@ class TasksQueue;
 class ThreadPool;
 class TrackDependencies;
 
-
+/*
 class TaskReferences {
 public:
 
@@ -32,6 +32,7 @@ public:
 	int cost;
 	int dataCost;
 };
+*/
 
 class ExecutionEngine {
 
@@ -39,8 +40,8 @@ private:
 	// Queue of tasks used ready to execute within this execution engine
 	TasksQueue *tasksQueue;
 
-	map<int, TaskReferences> taskReferences;
-	map<int, vector<int> > taskDependecies;
+//	map<int, TaskReferences> taskReferences;
+//	map<int, vector<int> > taskDependecies;
 
 	int schedType;
 	bool dataLocalityAware;
@@ -119,6 +120,8 @@ public:
 
 	void retrieveResources(int taskId);
 	void retrieveOutData(int taskId);
+
+
 
 };
 

@@ -47,8 +47,8 @@ bool ExecutionEngine::insertTask(Task *task)
 	os << "Insert: " << task->getId() << " : " << task->getCost() << endl;
 	os.close();
 
-	this->taskReferences[task->getId()] = TaskReferences(task);
-	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
+//	this->taskReferences[task->getId()] = TaskReferences(task);
+//	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
 
 	task->curExecEngine = this;
 
@@ -130,10 +130,11 @@ void ExecutionEngine::retrieveResources(int id)
 #if DEBUG
 	cout <<  "Taks retrieve resources: " << id << endl;
 #endif
-	this->tasksQueue->retrieveResources(taskReferences[id].cost, id);
-	if(taskReferences[id].nDep > 0)
-		this->tasksQueue->giveResources(taskReferences[id].dataCost);
-
+	//this->tasksQueue->retrieveResources(taskReferences[id].cost, id);
+	this->tasksQueue->retrieveResources(1, id);
+	//if(taskReferences[id].nDep > 0)
+		//this->tasksQueue->giveResources(taskReferences[id].dataCost);
+/*
 	vector<int>::iterator it;
 	for(it = this->taskDependecies[id].begin(); it !=
 		this->taskDependecies[id].end(); it++) {
@@ -142,13 +143,13 @@ void ExecutionEngine::retrieveResources(int id)
 #endif
 		this->retrieveOutData(*it);
 	}
-
+*/
 
 }
 
 void ExecutionEngine::retrieveOutData(int id)
 {
-
+/*
 
 	taskReferences[id].nDepFinished += 1;
 
@@ -161,9 +162,10 @@ void ExecutionEngine::retrieveOutData(int id)
 		this->tasksQueue->retrieveResources(taskReferences[id].dataCost, id);
 	}
 
-
+*/
 }
 
+/*
 TaskReferences::TaskReferences(Task* task)
 {
 	nDep = task->getNumberDependents();
@@ -171,3 +173,4 @@ TaskReferences::TaskReferences(Task* task)
 	dataCost = task->getDataCost();
 	cost = task->getCost();
 }
+*/
