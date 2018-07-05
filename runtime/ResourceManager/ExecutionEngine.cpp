@@ -47,8 +47,13 @@ bool ExecutionEngine::insertTask(Task *task)
 	os << "Insert: " << task->getId() << " : " << task->getCost() << endl;
 	os.close();
 
+<<<<<<< HEAD
 //	this->taskReferences[task->getId()] = TaskReferences(task);
 //	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
+=======
+	this->taskReferences[task->getId()] = TaskReferences(task);
+	this->taskDependecies[task->getId()] = vector<int> (task->dependencies);
+>>>>>>> 6074e1fb80e543eca4e0d3839f3ce59990c29f16
 
 	task->curExecEngine = this;
 
