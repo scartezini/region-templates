@@ -10,11 +10,15 @@
 
 ExecutionEngine::ExecutionEngine(int cpuThreads, int gpuThreads, int queueType, bool dataLocalityAware, bool prefetching) {
 	schedType = queueType;
+/*
 	if(queueType ==ExecEngineConstants::FCFS_QUEUE){
 		tasksQueue = new TasksQueueFCFS(cpuThreads, gpuThreads);
 	}else{
 		tasksQueue = new TasksQueuePriority(cpuThreads, gpuThreads);
 	}
+*/
+	tasksQueue = new TasksQueueMB(cpuThreads, gpuThreads, 4);
+
 	threadPool = new ThreadPool(tasksQueue, this);
 	threadPool->createThreadPool(cpuThreads, NULL, gpuThreads, NULL, dataLocalityAware, prefetching);
 
@@ -106,5 +110,7 @@ void ExecutionEngine::endTransaction()
 	this->trackDependencies->endTransaction();
 }
 
-
-
+void ExecutionEngine::retrieveResources()
+{
+	this->tasksQueue->retrieveResources(1);
+}

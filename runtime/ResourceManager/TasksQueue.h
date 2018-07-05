@@ -44,6 +44,8 @@ public:
 
 	virtual void getFrontBackSpeedup(float &front, float &back){};
 
+	virtual void retrieveResources(int memory){};
+
 };
 
 class TasksQueueFCFS: public TasksQueue {
@@ -77,5 +79,27 @@ public:
 	void getFrontBackSpeedup(float &front, float &back);
 };
 
+class TasksQueueMB: public TasksQueue {
+private:
+	list<Task*> tasksQueue;
+	list<Task*> memBlockQueue;
+
+	int available;
+
+public:
+	TasksQueueMB(int cpuThreads, int gpuThreads, int available){
+		this->cpuThreads = cpuThreads;
+		this->gpuThreads = gpuThreads;
+
+		this->available = available;
+	}
+	bool insertTask(Task* task);
+	Task* getTask(int procType=ExecEngineConstants::CPU);
+	int getSize();
+	Task* getByTaskId(int id);
+
+	void retrieveResources(int memory);
+
+};
 
 #endif /* TASKSQUEUE_H_ */

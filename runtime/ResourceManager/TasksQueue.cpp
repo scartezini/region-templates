@@ -223,3 +223,73 @@ void TasksQueue::releaseThreads(int numThreads)
 	}
 }
 
+
+bool TasksQueueMB::insertTask(Task *task)
+{
+	pthread_mutex_lock(&queueLock);
+
+	this->memBlockQueue.push_front(task);
+
+	pthread_mutex_unlock(&queueLock);
+	sem_post(&tasksToBeProcessed);
+	return true;
+
+}
+
+
+Task* TasksQueueMB::getTask(int procType)
+{
+	Task *retTask = NULL;
+	sem_wait(&tasksToBeProcessed);
+	pthread_mutex_lock(&queueLock);
+
+	//Para cada elemento da lista de block
+	//se puder se jogado para execução va
+	for (list<Task*>::iterator it = memBlockQueue.begin(); it != memBlockQueue.end(); ++it ) {
+		//if ((*it)->getCostlyPath() <= this->available) {
+		//if((*it)->getCost() <= this->available) {
+		if(this->available > 0) {
+			this->tasksQueue.push_back((*it));
+			//this->available -= (*it)->getCost();
+			this->available -= 1;
+
+			this->memBlockQueue.erase(it--);
+		}
+	}
+
+	if(tasksQueue.size() > 0){
+		retTask = tasksQueue.front();
+
+		if(retTask != NULL){
+			tasksQueue.pop_front();
+		}
+	}
+	pthread_mutex_unlock(&queueLock);
+	return retTask;
+
+}
+
+int TasksQueueMB::getSize()
+{
+
+	int number_tasks = 0;
+	pthread_mutex_lock(&queueLock);
+
+	number_tasks = tasksQueue.size() + memBlockQueue.size();
+
+	pthread_mutex_unlock(&queueLock);
+
+	return number_tasks;
+
+}
+
+
+void TasksQueueMB::retrieveResources(int memory)
+{
+	pthread_mutex_lock(&queueLock);
+	this->available += memory;
+	pthread_mutex_unlock(&queueLock);
+
+}
+
+Task* TasksQueueMB::getByTaskId(int id){}

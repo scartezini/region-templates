@@ -50,6 +50,7 @@ Task::~Task()
 	try{
 		if(curExecEngine != NULL){
 			this->curExecEngine->resolveDependencies(this);
+			this->curExecEngine->retrieveResources();
 		}
 
 	}catch(...){
@@ -248,8 +249,3 @@ bool CallBackTaskBase::run(int procType, int tid)
 	std::cout <<"Warning. The \"run\" function from the CallBackTaskBase class is being executed. You should implement the run into the descendant CallBackTaskBase class!"<< std::endl;
 	return true;
 }
-
-
-
-
-

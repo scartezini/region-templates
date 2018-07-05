@@ -101,6 +101,8 @@ public:
 	void startTransaction(CallBackTaskBase *transactionTask);
 	void endTransaction();
 
+	void retrieveResources();
+
 };
 
 #endif /* EXECUTIONENGINE_H_ */
