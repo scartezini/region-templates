@@ -25,6 +25,7 @@ private:
     void setManager(Manager *manager);
 
     // System parameters
+	int nInstance;
     int cpus, gpus, policy, windowSize;
     bool dataLocalityAware;
     bool prefetching;

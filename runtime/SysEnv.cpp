@@ -93,6 +93,10 @@ void SysEnv::parseInputArguments(int argc, char**argv){
 				dataLocalityAware = true;
 				break;
 
+			case 'i':
+				nInstance = atoi(argv[i+1]);
+				break;
+
 			case 'p':
 				prefetching = true;
 				break;
@@ -145,7 +149,7 @@ int SysEnv::startupSystem(int argc, char **argv, std::string componentsLibName){
 //	if(rank == 0){
 //
 ////		        int npapp = this->comm_world.Get_size() -1;
-//	int npapp = 1;  
+//	int npapp = 1;
 // //     std::cout << " DataSpaces clients: "<< npapp << std::endl;
 //        dspaces_init(npapp, 1);
 ////        std::cout <<  " after DataSpaces init" << std::endl;
@@ -185,7 +189,7 @@ int SysEnv::startupSystem(int argc, char **argv, std::string componentsLibName){
 		// Create one worker object for each Worker process. The Worker objects follows
 		// the singleton pattern and, as such, only the existing instance is retrieved
 		// through the getInstance class
-		Worker* localWorker = Worker::getInstance(manager_rank, rank, windowSize, cpus, gpus, policy, dataLocalityAware, prefetching, cacheOnRead);//new Worker(comm_world, manager_rank, rank, windowSize, cpus, gpus, policy, dataLocalityAware, prefetching );
+		Worker* localWorker = Worker::getInstance(manager_rank, rank, windowSize, cpus, gpus, policy, nInstance, dataLocalityAware, prefetching, cacheOnRead);//new Worker(comm_world, manager_rank, rank, windowSize, cpus, gpus, policy, dataLocalityAware, prefetching );
 		localWorker->setCommWorld(comm_world);
 
 		// Initialize the name of the library containing the Pipeline components
@@ -229,6 +233,3 @@ int SysEnv::executeComponent(PipelineComponentBase* compInstance) {
 	this->getManager()->insertComponentInstance(compInstance);
 	return 0;
 }
-
-
-

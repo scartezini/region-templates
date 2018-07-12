@@ -101,7 +101,7 @@ private:
     void notifyComponentsCompleted();
 
     // This is a singleton class. Only a single instance exists per process
-    Worker(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const bool dataLocalityAware, const bool prefetching, bool cacheOnRead = false);
+    Worker(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const int nInstance, const bool dataLocalityAware, const bool prefetching, bool cacheOnRead = false);
 
     // Other variables used to guarantee that it is a singleton
     static bool instanceFlag;
@@ -120,7 +120,7 @@ private:
 public:
 
 //    Worker(const MPI::Intracomm & comm_world, const int manager_rank, const int rank, const int max_active_components=1, const int CPUCores = 1, const int GPUs = 0, const int schedType = ExecEngineConstants::FCFS_QUEUE, const bool dataLocalityAware=false, const bool prefetching=false);
-    static Worker* getInstance(const int manager_rank=0, const int rank=0, const int max_active_components=1, const int CPUCores=1, const int GPUs=0, const int schedType=ExecEngineConstants::FCFS_QUEUE, const bool dataLocalityAware=false, const bool prefetching=false, bool cacheOnRead = false);
+    static Worker* getInstance(const int manager_rank=0, const int rank=0, const int max_active_components=1, const int CPUCores=1, const int GPUs=0, const int schedType=ExecEngineConstants::FCFS_QUEUE, const int nInstance=4, const bool dataLocalityAware=false, const bool prefetching=false, bool cacheOnRead = false);
     virtual ~Worker();
 
     // Main loop that keeps receiving component instances and executing them

@@ -26,13 +26,13 @@
 bool Worker::instanceFlag = false;
 Worker* Worker::singleWorker = NULL;
 
-Worker::Worker(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const bool dataLocalityAware, const bool prefetching, const bool cacheOnRead) {
+Worker::Worker(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const int nInstance, const bool dataLocalityAware, const bool prefetching, const bool cacheOnRead) {
 	this->manager_rank = manager_rank;
 	this->rank = rank;
 	this->setMaxActiveComponentInstances(max_active_components);
 	this->setActiveComponentInstances(0);
 	// Create a local Resource Manager
-	this->setResourceManager(new ExecutionEngine(CPUCores, GPUs, schedType, dataLocalityAware, prefetching));
+	this->setResourceManager(new ExecutionEngine(CPUCores, GPUs, nInstance, schedType, dataLocalityAware, prefetching));
 
 	// Computing threads startup consuming tasks
 	this->getResourceManager()->startupExecution();
@@ -49,9 +49,9 @@ Worker::Worker(const int manager_rank, const int rank, const int max_active_comp
 }
 
 
-Worker* Worker::getInstance(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const bool dataLocalityAware, const bool prefetching, const bool cacheOnRead){
+Worker* Worker::getInstance(const int manager_rank, const int rank, const int max_active_components, const int CPUCores, const int GPUs, const int schedType, const int nInstance, const bool dataLocalityAware, const bool prefetching, const bool cacheOnRead){
 	if(!instanceFlag){
-		singleWorker = new Worker(manager_rank, rank, max_active_components, CPUCores, GPUs, schedType, dataLocalityAware, prefetching, cacheOnRead);
+		singleWorker = new Worker(manager_rank, rank, max_active_components, CPUCores, GPUs, schedType, nInstance, dataLocalityAware, prefetching, cacheOnRead);
 		instanceFlag = true;
 		return singleWorker;
 	}else{
@@ -279,7 +279,7 @@ void Worker::workerProcess()
 		long long t_recv = Util::ClockGetTime();
 
 	//	std::cout << "Worker: "<< this->getRank()<<" flag: " <<(int)flag<<std::endl;
-	
+
 		switch(flag){
 			case MessageTag::MANAGER_READY:
 			{
@@ -350,9 +350,9 @@ void Worker::workerProcess()
 					std::stringstream t_end_ss;
 					t_end_ss << t_end;
 
-					std::cout << "[WORKER_PROFILER] " << t0_ss.str() << " " << t_recv_ss.str() << " " 
-						<< t_isnull_ss.str() << " " << t_cache_ss.str() << " " 
-						<< t_callback_ss.str() << " " << t_run_ss.str() << " " 
+					std::cout << "[WORKER_PROFILER] " << t0_ss.str() << " " << t_recv_ss.str() << " "
+						<< t_isnull_ss.str() << " " << t_cache_ss.str() << " "
+						<< t_callback_ss.str() << " " << t_run_ss.str() << " "
 						<< t_end_ss.str() << std::endl;
 
 				}else{
