@@ -17,8 +17,8 @@ int find_arg_pos(string s, int argc, char** argv) {
 
 // returns by reference a map of input arguments to an uid from 'workflow_descriptor' with the
 // list if all possible values each argument can get on a separate map, linked with the same uid
-void get_inputs_from_file(FILE* workflow_descriptor, 
-	map<int, ArgumentBase*> &workflow_inputs, 
+void get_inputs_from_file(FILE* workflow_descriptor,
+	map<int, ArgumentBase*> &workflow_inputs,
 	map<int, list<ArgumentBase*>> &parameters_values) {
 
 	char *line = NULL;
@@ -27,7 +27,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 	// initial ports section beginning and end
 	string ip("<inputPorts>");
 	string ipe("</inputPorts>");
-	
+
 	// ports section beginning and end
 	string p("<port>");
 	string pe("</port>");
@@ -79,7 +79,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 			case parsing::int_t:
 				// create the argument
 				inp_arg = new ArgumentInt();
-				// cout << "int argument: " << name << ", values: " << endl;		
+				// cout << "int argument: " << name << ", values: " << endl;
 				// get all possible values for the argument
 				for (int i=0; i<data["values"].size(); i++) {
 					ArgumentBase* val = new ArgumentInt(data["values"][i].asInt());
@@ -91,7 +91,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 			case parsing::string_t:
 				// create the argument
 				inp_arg = new ArgumentString();
-				// cout << "string argument: " << name << ", values: " << endl;		
+				// cout << "string argument: " << name << ", values: " << endl;
 				// get all possible values for the argument
 				for (int i=0; i<data["values"].size(); i++) {
 					ArgumentBase* val = new ArgumentString(data["values"][i].asString());
@@ -103,7 +103,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 			case parsing::float_t:
 				// create the argument
 				inp_arg = new ArgumentFloat();
-				// cout << "float argument: " << name << ", values: " << endl;		
+				// cout << "float argument: " << name << ", values: " << endl;
 				// get all possible values for the argument
 				for (int i=0; i<data["values"].size(); i++) {
 					ArgumentBase* val = new ArgumentFloat(data["values"][i].asFloat());
@@ -115,7 +115,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 			case parsing::float_array_t:
 				// create the argument
 				inp_arg = new ArgumentFloatArray();
-				// cout << "floatarray argument: " << name << ", values: " << endl;		
+				// cout << "floatarray argument: " << name << ", values: " << endl;
 				// get all possible values for the argument
 				for (int i=0; i<data["values"].size(); i++) {
 					ArgumentBase* val = new ArgumentFloatArray();
@@ -133,7 +133,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 			case parsing::rt_t:
 				// create the argument
 				inp_arg = new ArgumentRT();
-				// cout << "string argument: " << name << ", values: " << endl;		
+				// cout << "string argument: " << name << ", values: " << endl;
 				// get all possible values for the argument
 				for (int i=0; i<data["values"].size(); i++) {
 					ArgumentBase* val = new ArgumentRT(data["values"][i].asString());
@@ -176,7 +176,7 @@ void get_outputs_from_file(FILE* workflow_descriptor, map<int, ArgumentBase*> &w
 	// initial ports section beginning and end
 	string ip("<outputPorts>");
 	string ipe("</outputPorts>");
-	
+
 	// ports section beginning and end
 	string p("<port>");
 	string pe("</port>");
@@ -223,32 +223,32 @@ void get_outputs_from_file(FILE* workflow_descriptor, map<int, ArgumentBase*> &w
 			case parsing::int_t:
 				// create the argument
 				out_arg = new ArgumentInt();
-				// cout << "int output: " << name << endl;		
+				// cout << "int output: " << name << endl;
 				break;
 			case parsing::string_t:
 				// create the argument
 				out_arg = new ArgumentString();
-				// cout << "string output: " << name << endl;		
+				// cout << "string output: " << name << endl;
 				break;
 			case parsing::float_t:
 				// create the argument
 				out_arg = new ArgumentFloat();
-				// cout << "float output: " << name << endl;		
+				// cout << "float output: " << name << endl;
 				break;
 			case parsing::float_array_t:
 				// create the argument
 				out_arg = new ArgumentFloatArray();
-				// cout << "floatarray output: " << name << endl;		
+				// cout << "floatarray output: " << name << endl;
 				break;
 			case parsing::rt_t:
 				// create the argument
 				out_arg = new ArgumentRT();
-				// cout << "string output: " << name << endl;		
+				// cout << "string output: " << name << endl;
 				break;
 			default:
 				exit(-4);
 		}
-		
+
 		out_arg->setName(name);
 		out_arg->setIo(ArgumentBase::output);
 		int new_id = new_uid();
@@ -266,8 +266,8 @@ void get_outputs_from_file(FILE* workflow_descriptor, map<int, ArgumentBase*> &w
 
 // returns by reference the map of stages on its uid, 'base_stages', and also a map
 // of all output arguments of all stages on its uid, 'interstage_arguments'.
-void get_stages_from_file(FILE* workflow_descriptor, 
-	map<int, PipelineComponentBase*> &base_stages, 
+void get_stages_from_file(FILE* workflow_descriptor,
+	map<int, PipelineComponentBase*> &base_stages,
 	map<int, ArgumentBase*> &interstage_arguments) {
 
 	char *line = NULL;
@@ -339,8 +339,8 @@ void get_stages_from_file(FILE* workflow_descriptor,
 
 // returns by reference the map of stages to its ids updated. each stage now has
 // the list of input ids
-void connect_stages_from_file(FILE* workflow_descriptor, 
-	map<int, PipelineComponentBase*> &base_stages, 
+void connect_stages_from_file(FILE* workflow_descriptor,
+	map<int, PipelineComponentBase*> &base_stages,
 	map<int, ArgumentBase*> &interstage_arguments,
 	map<int, ArgumentBase*> &input_arguments,
 	map<int, list<int>> &deps,
@@ -401,30 +401,30 @@ void connect_stages_from_file(FILE* workflow_descriptor,
 				deps[sink_stg->getId()].emplace_back(find_stage(base_stages, all_source_fields[0].data)->getId());
 				arg = find_argument(interstage_arguments, all_source_fields[1].data);
 				arg->setParent(find_stage(base_stages, all_source_fields[0].data)->getId());
-				// cout << "source from stage " << all_source_fields[0].data << " is " << arg->getId() << ":" 
+				// cout << "source from stage " << all_source_fields[0].data << " is " << arg->getId() << ":"
 				// 	<< arg->getName() << " parent " << arg->getParent() << endl;
 			}
 
 			// add the link to the sink stage
 			sink_stg->addInput(arg->getId());
-		} 
+		}
 		else {
 			// cout << "workflow argument sink: " << all_sink_fields[0].data << endl;
 			// update workflow output id in order to access it later to retreive the output
-			
+
 			ArgumentBase* itstg_argument = find_argument(interstage_arguments, all_source_fields[1].data);
-			// cout << "Output " << all_sink_fields[0].data << " connects to argument " << itstg_argument->getId() << 
+			// cout << "Output " << all_sink_fields[0].data << " connects to argument " << itstg_argument->getId() <<
 			// 	":" << itstg_argument->getName() << endl;
 			ArgumentBase* output = find_argument(workflow_outputs, all_sink_fields[0].data);
 			// cout << "Output " << all_sink_fields[0].data << " had id " << output->getId() << endl;
-			
+
 			// remove reference of old id from map
 			workflow_outputs.erase(output->getId());
 
 			// update the output id
 			output->setId(itstg_argument->getId());
 			// cout << "Output " << all_sink_fields[0].data << " now has id " << output->getId() << endl;
-			
+
 			// re-insert the output with the new id
 			workflow_outputs[output->getId()] = output;
 		}

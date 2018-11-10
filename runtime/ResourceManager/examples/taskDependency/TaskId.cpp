@@ -16,9 +16,6 @@ bool TaskId::run(int procType, int tid)
 		//sleep(5/this->getSpeedup(ExecEngineConstants::GPU));
 	}
 //	std::cout << "Task.id = "<< this->getId() << std::endl;
-	this->printDependencies();
+	//this->printDependencies();
 	return true;
 }
-
-
-

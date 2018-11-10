@@ -1,0 +1,95 @@
+1. setup testing environment
+2. removed need for borders.  also removed a potential bug that may cause problems:  if x ==0 or x == sx-1, neighbors are not inspected correctly.
+3. [ix][ty] is probably not useful - ty is accessed in parallel.  so for each iteration of ix, actually want ty to be as the inner loop.
+
+
+4. debug imrecon-int code. - binary version works.  why does int version not?
+	4.1 - check all image tests as binary and as int. - definitely have a problem when it's int.
+	4.2 - test the x and y separately.  problem is with x.
+	4.3 - was calling forward and backward x2 with thread block set up for x.
+	working now.  now start the optimization. (the 4conn shows same number of iterations as Pavel code, should be working.)
+	4.4 - binary has been using x2.  int has been using x.  now try int with x2. - slower.  for imrecon-gray-* input, 4conn is 600ms slower, and 8conn is 200ms slower.
+
+now run the visual profiler to see where the bottlenecks are.
+	1. occupancy of x2 is only at 0.167, probably due to register use.
+	2. x2 : branching is high - reorganize
+	3. x2 : cache miss.  use texture memory or use shared mem. 
+	4. x2 : low memory bandwidth.  L1 hit ratio is only 48%
+	5. x2 : mem access not coalesced. - disable cache, use texture mem, change data organization
+	
+
+should switch to comparison using the truncated segment function - to capture timing.
+	
+5. bank conflict - not much difference right now.
+6. use of T* (local memory?) - switch to shared... - slowed down a lot: imrecon-gray test went from 1.9 sec for 8conn to 2.6, and 4.9 sec for 4conn to 6.8s
+7. reduce register usage (maybe by removing the use of DevMem2D?)
+	7.1 remove use of DevMem2D - only shaved off 4 to 5 registers. still at about 24...
+		number of iterations went down.  from 53 to 45.  execution time went up from 1.9s to 2.1s.
+		probably from the additional index computation.
+	7.2 try volatile.
+		not much change.
+8. x2's data loading is reading data looping over ix, for each ty.  this means at a given point in time, the block is reading from multiple y's and the access is not coalesced between threads.
+	the shared 2D array is organized right - ty is inner loop.
+	reading from global memory is not organized right for easy coalescing.
+	
+	fixed by taking advantage of the square shared mem blocks.
+		now using 43 or 44 registers.
+***		but now int imrecon gray takes 	875ms.  still 45 iterations.
+	
+	look at visual profiler - somehow it's not able to do more than one run...
+		but the info suggest that the occupancy is low for x2
+		increase thread for x2 to 32 - small incremental effect.
+	as comparison: original x scan with 16x32 threads:  1.4 s.
+	
+9. turn stream back on.	- no difference.
+10.	reduce number of __syncthreads() - mostly in y. - reduced to 750ms for 8con gray.  4con gray still at 2.1
+	***
+11. using 32 threads (warp size). 
+	*** also change to avoid bank conflicts.  (5) register use down from 45 to 31 to 32. - down to 588ms for 8conn grayscale
+
+12. use page-locked memory for host to device? - matters for host to device.
+16. restricted pointers (B.2.4).  also changed compiler flags to add -O3, -fPIC (still using sm_20 and --use_fast_math)
+	no difference...
+14. use intrinsics (C.2)?  does not make any difference for this code.
+18. allocate device memory once for entire run - possible?  NO. __device__ with __shared__ has scope of?
+
+17. reduce register usage: compile with -keep to inspect code
+	tried to use temp variables - resulted in 63 instead of 32 registers.
+	reverted.
+	
+22. for now, revert back to the "fastest" version - coalesced x2 operations.
+	migrate all kernels to using this.
+	get timing results.
+
+23. look at read element size.  need to coalesce better:
+	1. read elements of 4, 8, or 16 bytes per thread
+	2. contiguous in global mem
+	3. Nth element goes to Nth thread
+	4. element of first thread is algined at 16* element size.
+		so global memory allocation needs to happen with aligned at 16.  __align(x)
+		and number of threads needs to be multiple of 16.
+	read chunks of 16 bytes, 32 y threads, 8 x threads,
+	
+TODO:
+
+
+
+13. remove as much conditionals as possible.
+	completely removed the by+ty<sy conditional in x2. - reduced register usage down to 19.  slow down to 696ms from 575ms.
+		FIX: reorganize s_marker and s_mask?
+	completely pushed bx+tx<sx conditional down to line leve - reduced register usage from 18 to 12.  but slowed down to 873ms from 696ms/575ms.
+		- uncoalesced data access. FIX? 
+			forward y 8conn - using separate arrays for pre and post columns....  slowed things down.
+			problem:  strided access to marker/mask (1 column) results in 1 global access per element read.
+			changed to extend marker size by 2. - does not really help all that much
+			changed to use a conditional to wrap the whole block - 30 to 40% improvement.... why? 
+		- no bank conflict
+	would using threadIdx.x and blockIdx.x and blockDim.x directly help with coalesced access?
+21. occupancy:  need 32 x threads (memory bound.  there is a total of 48K for all blocks), 128 y threads (max threads bound total 1536).  went back to 750ms.
+		need to reduce x memory usage.
+15. optimize out sync points (5.4.3)?  
+19. use warpSize to help with execution - minimize syncthreads...
+	if within the same warp - all threads execute together, so is lock stepped and no syncthreads is needed.
+	so x2 can get rid of a bunch of syncthreads. - warp = 32 threads.  this may limit the occupancy...
+20. use texture memory?	
+21. allocate shared memory as a single big block.

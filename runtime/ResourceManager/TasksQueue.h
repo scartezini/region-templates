@@ -99,6 +99,7 @@ public:
 	Task* getByTaskId(int id);
 
 	void retrieveResources(int memory);
+	void unblockTasks();
 
 };
 

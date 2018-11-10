@@ -7,7 +7,7 @@
 #include "PipelineComponentBase.h"
 
 // global uid for any local(this file and PipelineManager) entity
-static int uid=1;
+static int uid=100000000;
 int new_uid();
 
 ArgumentBase* find_argument(PipelineComponentBase* p, string name, map<int, ArgumentBase*> expanded_args);
@@ -18,14 +18,14 @@ ArgumentBase* find_argument(PipelineComponentBase* p, string name, map<int, Argu
 bool exists_reusable_task(const PipelineComponentBase* merged, const PipelineComponentBase* to_merge, string task_name);
 
 // for the meantime the merging will happen whenever at least the first task is reusable
-bool merging_condition(const PipelineComponentBase* merged, const PipelineComponentBase* to_merge, 
+bool merging_condition(const PipelineComponentBase* merged, const PipelineComponentBase* to_merge,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref);
 
 // filters all the stages from an input map by the stage's name
-void filter_stages(const map<int, PipelineComponentBase*> &all_stages, 
+void filter_stages(const map<int, PipelineComponentBase*> &all_stages,
 	string stage_name, list<PipelineComponentBase*> &filtered_stages, bool shuffle);
 
-list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p, 
+list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p,
 	map<int, ArgumentBase*> expanded_args);
 
 ReusableTask* find_task(list<ReusableTask*> l, string name);
@@ -37,16 +37,16 @@ void merge_stages(PipelineComponentBase* current, PipelineComponentBase* s, map<
 // Attempt to merge a list of PCB, returning a list of PCBs with the same size.
 // The new list will have the merged PCBs without any tasks and with the reuse
 // attribute set as true.
-list<PipelineComponentBase*> merge_stages_full(list<PipelineComponentBase*> stages, 
+list<PipelineComponentBase*> merge_stages_full(list<PipelineComponentBase*> stages,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>> ref);
 
-int get_reuse_factor(PipelineComponentBase* s1, PipelineComponentBase* s2, 
+int get_reuse_factor(PipelineComponentBase* s1, PipelineComponentBase* s2,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref);
 
 float calc_stage_proc(list<PipelineComponentBase*> s, const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref);
 
 // just add PCB s symbolically and calculate the cost with stages
-float calc_stage_proc(list<PipelineComponentBase*> stages, PipelineComponentBase* s, map<int, ArgumentBase*> &args, 
+float calc_stage_proc(list<PipelineComponentBase*> stages, PipelineComponentBase* s, map<int, ArgumentBase*> &args,
 	map<string, list<ArgumentBase*>> ref);
 
 float calc_stage_mem(list<PipelineComponentBase*> s, map<int, ArgumentBase*> &args, map<string, list<ArgumentBase*>> ref);

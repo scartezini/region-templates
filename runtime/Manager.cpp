@@ -63,7 +63,7 @@ int Manager::finalizeExecution()
 	std::vector<bool> finished;
 	for(int i = 0; i < worker_size; i++)
 		finished.push_back(false);
-	
+
 	while (active_workers > 0) {
 		usleep(1000);
 
@@ -310,7 +310,7 @@ void Manager::manager_process()
 						std::stringstream t_end_ss;
 						t_end_ss << t_end;
 
-						// std::cout << "[MANAGER_PROFILER] " << t_0_ss.str() << " " <<  t_probe_ss.str() << " " << t_recv_ss.str() << " " 
+						// std::cout << "[MANAGER_PROFILER] " << t_0_ss.str() << " " <<  t_probe_ss.str() << " " << t_recv_ss.str() << " "
 						// 	<< t_data_aware_ss.str() << " " << t_get_task_ss.str() << " " << t_end_ss.str() << std::endl;
 
 					}else{
@@ -320,7 +320,7 @@ void Manager::manager_process()
 					break;
 				}
 				case MessageTag::WORKER_TASKS_COMPLETED:
-				{	
+				{
 
 					long long t_switch = Util::ClockGetTime();
 
@@ -349,7 +349,7 @@ void Manager::manager_process()
 
 					// components with extra data
 					int number_components_extra_data = ((int*) (msg+extracted_size_bytes))[0]; //tasks_data[number_components_completed+1];
-#ifdef DEBUG	
+#ifdef DEBUG
 					std::cout << "Manager: #componets w/ extra data: "<< number_components_extra_data << " extracted bytes: "<< extracted_size_bytes<<std::endl;
 #endif
 					extracted_size_bytes += sizeof(int);
@@ -490,8 +490,8 @@ void Manager::manager_process()
 					std::stringstream t_end_ss;
 					t_end_ss << t_end;
 
-					std::cout << "[MANAGER_PROFILER] " << t_0_ss.str() << " " <<  t_probe_ss.str() << " " << t_recv_ss.str() << " " 
-						<< t_switch_ss.str() << " " << t_extract_ss.str() << " " << t_rt_ss.str() << " " << t_delete_ss.str() << " " 
+					std::cout << "[MANAGER_PROFILER] " << t_0_ss.str() << " " <<  t_probe_ss.str() << " " << t_recv_ss.str() << " "
+						<< t_switch_ss.str() << " " << t_extract_ss.str() << " " << t_rt_ss.str() << " " << t_delete_ss.str() << " "
 						<< t_end_ss.str() << std::endl;
 
 					break;

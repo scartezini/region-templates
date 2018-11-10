@@ -6,7 +6,7 @@ project(Runtime)
 set(Runtime_VERSION_MAJOR 1)
 set(Runtime_VERSION_MINOR 0)
 
-add_definitions( -ggdb -gdwarf-2 )
+add_definitions(-std=c++11 -ggdb -gdwarf-2 )
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE Release CACHE STRING
@@ -28,8 +28,8 @@ include_directories(${MPI_INCLUDE_PATH})
 set(USE_CUDA OFF CACHE BOOL "Include NVidia CUDA Runtime support")
 if(USE_CUDA)
     find_package(CUDA 4.0)
-    
-    if(CUDA_FOUND) 		
+
+    if(CUDA_FOUND)
         message(STATUS "CUDA detected: " ${CUDA_VERSION})
 
         # These vars will be processed in other scripts
@@ -56,18 +56,18 @@ if(USE_REGION_TEMPLATES)
 	# add region template compiling flag
 	add_definitions( -DWITH_RT )
 
-	# choose whether data spaces will be used or not 
+	# choose whether data spaces will be used or not
 	set(USE_DATA_SPACES OFF CACHE BOOL "Include support for Data Spaces in the Region Templates framework")
 
 	if(USE_DATA_SPACES)
 		add_definitions( -DWITH_DATA_SPACES )
 	endif(USE_DATA_SPACES)
-	
+
 	set(USE_ACTIVE_HARMONY OFF CACHE BOOL "Include compilation of Activer Harmony")
 
 
 #	set(USE_DAKOTA OFF CACHE BOOL "Include compilation of Dakota Toolkit")
-	
+
 	# data spaces library locations
 	link_directories(${RegionTemplate_SOURCE_DIR}/external-src/dataspaces-ib-1.03beta/)
 
@@ -75,7 +75,7 @@ if(USE_REGION_TEMPLATES)
 	include_directories( ${RegionTemplate_SOURCE_DIR}/cache/)
 	# region template for compilation
 	add_subdirectory("regiontemplates")
-endif(USE_REGION_TEMPLATES)	
+endif(USE_REGION_TEMPLATES)
 
 add_subdirectory("tests")
 add_subdirectory("examples")
@@ -110,7 +110,7 @@ endif(USE_ACTIVE_HARMONY)
 #	add_dependencies("${libname}" active_harmony_lib)
 #endif(USE_DAKOTA)
 
-#set_target_properties("${libname}" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}" -DPROFILE) 
+#set_target_properties("${libname}" PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}" -DPROFILE)
 target_link_libraries("${libname}" ${MPI_LIBRARIES} execengine)
 
 if(USE_DATA_SPACES)

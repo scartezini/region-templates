@@ -8,6 +8,8 @@
 #ifndef Segmentation_H_
 #define Segmentation_H_
 
+#include <csignal>
+
 #include "RTPipelineComponentBase.h"
 #include "Util.h"
 #include "FileUtils.h"

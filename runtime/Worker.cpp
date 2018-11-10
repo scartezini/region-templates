@@ -311,7 +311,7 @@ void Worker::workerProcess()
 
 					CallBackComponentExecution *callBackTask = new CallBackComponentExecution(pc, this);
 					if(ioTaskId != -1){
-						callBackTask->addDependency(ioTaskId);
+						callBackTask->addDependency(ioTaskId, 3);
 					}
 #ifdef DEBUG
 					std::cout << "Created IO task. Id = "<< ioTaskId << std::endl;

@@ -13,7 +13,7 @@ int main(){
 	map<int, list<Task *> >::iterator dependencyMapIt;
 
 	Task *ts = new Task();
-	ts->printDependencies();
+	//ts->printDependencies();
 	int taskId = ts->getId();
 	list<Task *> l;
 	dependencyMap.insert(std::pair<int, list<Task *> >(ts->getId(), l));

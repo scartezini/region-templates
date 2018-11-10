@@ -236,15 +236,10 @@ bool TasksQueueMB::insertTask(Task *task)
 
 }
 
-
-Task* TasksQueueMB::getTask(int procType)
-{
-	Task *retTask = NULL;
-	sem_wait(&tasksToBeProcessed);
-	pthread_mutex_lock(&queueLock);
-
+void TasksQueueMB::unblockTasks() {
 	//Para cada elemento da lista de block
 	//se puder se jogado para execução va
+	pthread_mutex_lock(&queueLock);
 	for (list<Task*>::iterator it = memBlockQueue.begin(); it != memBlockQueue.end(); ++it ) {
 		//if ((*it)->getCostlyPath() <= this->available) {
 		//if((*it)->getCost() <= this->available) {
@@ -254,9 +249,22 @@ Task* TasksQueueMB::getTask(int procType)
 			this->available -= 1;
 
 			this->memBlockQueue.erase(it--);
+		} else {
+			break;
 		}
 	}
+	pthread_mutex_unlock(&queueLock);
 
+}
+
+
+Task* TasksQueueMB::getTask(int procType)
+{
+	Task *retTask = NULL;
+
+	sem_wait(&tasksToBeProcessed);
+	unblockTasks();
+	pthread_mutex_lock(&queueLock);
 	if(tasksQueue.size() > 0){
 		retTask = tasksQueue.front();
 
@@ -289,6 +297,7 @@ void TasksQueueMB::retrieveResources(int memory)
 	pthread_mutex_lock(&queueLock);
 	this->available += memory;
 	pthread_mutex_unlock(&queueLock);
+	unblockTasks();
 
 }
 

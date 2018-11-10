@@ -85,7 +85,7 @@ int NormalizationComp::run() {
 		// Create processing task
 		TaskNormalizationComp * task = new TaskNormalizationComp(input_img, normalized_rt, target_mean, target_std);
 
-		this->executeTask(task);
+		this->executeTask(task,4);
 
 
 	}else{
@@ -109,13 +109,13 @@ bool registeredNormalizationComp = PipelineComponentBase::ComponentFactory::comp
 /**************************************************************************************/
 
 TaskNormalizationComp::TaskNormalizationComp(DenseDataRegion2D* input_img_temp, DenseDataRegion2D* normalized_rt_temp, float* target_mean, float* target_std) {
-	
+
 	this->input_img_temp = input_img_temp;
 	this->normalized_rt_temp = normalized_rt_temp;
 	this->target_mean = target_mean;
 	this->target_std = target_std;
 
-	
+
 }
 
 TaskNormalizationComp::~TaskNormalizationComp() {
@@ -124,17 +124,17 @@ TaskNormalizationComp::~TaskNormalizationComp() {
 }
 
 bool TaskNormalizationComp::run(int procType, int tid) {
-	
+
 	cv::Mat input_img = this->input_img_temp->getData();
 
 	cv::Mat normalized_rt;
 
 	uint64_t t1 = Util::ClockGetTimeProfile();
 
-	std::cout << "TaskNormalizationComp executing." << std::endl;	
+	std::cout << "TaskNormalizationComp executing." << std::endl;
 
 	normalized_rt = ::nscale::Normalization::normalization(input_img, target_mean, target_std);
-	
+
 	this->normalized_rt_temp->setData(normalized_rt);
 
 	uint64_t t2 = Util::ClockGetTimeProfile();

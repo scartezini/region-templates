@@ -56,7 +56,7 @@ void *callThread(void *arg){
 		cv::gpu::GpuMat A_g(A);
 		A_g.release();
 #endif
-		
+
 	}else{
 		int cpuId=tid+2;
 
@@ -365,8 +365,8 @@ void ThreadPool::processTasks(int procType, int tid)
 
 				if(curTask->getTaskType() == ExecEngineConstants::TRANSACTION_TASK){
 					curTask->run(procType, tid);
-				} 
-				
+				}
+
 				delete curTask;
 				continue;
 			}
@@ -417,8 +417,19 @@ void ThreadPool::processTasks(int procType, int tid)
 
 //		printf("StartTime:%f\n",(tSComp)/1000000);
 		try{
-			
+
 			std::cout << "Executing, task.id: "<< curTask->getId() << std::endl;
+			//curTask->printDependencies();
+			std::cout << "======================="
+				 << "name = " << curTask->taskName
+			 	 <<" id = " <<  curTask->id
+				 << " deps.length = "
+				 << curTask->dependencies.size()
+				 << " deps.solved = "
+				 << curTask->numberDependenciesSolved
+				 << " callBackDepsReady = "
+				 << curTask->callBackDepsReady << std::endl;
+
 			curTask->run(procType, tid);
 
 			if(curTask->getStatus() != ExecEngineConstants::ACTIVE){
@@ -464,7 +475,7 @@ void ThreadPool::processTasks(int procType, int tid)
 					// if prefetching is not active, perform synchronous download
 					if(!prefetching){
 						downloadTaskOutputParameters(curTask, *stream);
-				
+
 						delete curTask;
 						curTask = NULL;
 					}else{
@@ -514,15 +525,15 @@ void ThreadPool::processTasks(int procType, int tid)
 
 		// October 04, 2013. Commenting out line bellow to work with GPUs without compiling w/ cuda/gpu suppport
 	//	if(procType == ExecEngineConstants::CPU){
-			try{	
+			try{
 				delete curTask;
 			}catch(...){
 				printf("ERROR DELETE\n");
 			}
 //		}
-		
-		
-		
+
+
+
 //		if(curTask != NULL)
 //			delete curTask;
 //
@@ -574,8 +585,3 @@ int ThreadPool::getCPUThreads()
 {
 	return numCPUThreads;
 }
-
-
-
-
-

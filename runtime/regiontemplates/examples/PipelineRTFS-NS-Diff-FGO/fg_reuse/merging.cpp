@@ -1,7 +1,7 @@
 #include "merging.hpp"
 
 int new_uid() {
-	return uid++;
+	return (uid++);
 }
 
 ArgumentBase* find_argument(PipelineComponentBase* p, string name, map<int, ArgumentBase*> expanded_args) {
@@ -31,7 +31,7 @@ bool exists_reusable_task(const PipelineComponentBase* merged, const PipelineCom
 
 	// attempt to find the same task on merged
 	for (ReusableTask* t : merged->tasks)
-		if (t->getTaskName().compare(task_name) == 0 && 
+		if (t->getTaskName().compare(task_name) == 0 &&
 				to_merge_task->reusable(t))
 			return true;
 
@@ -39,9 +39,9 @@ bool exists_reusable_task(const PipelineComponentBase* merged, const PipelineCom
 }
 
 // for the meantime the merging will happen whenever at least the first task is reusable
-bool merging_condition(const PipelineComponentBase* merged, const PipelineComponentBase* to_merge, 
+bool merging_condition(const PipelineComponentBase* merged, const PipelineComponentBase* to_merge,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref) {
-	
+
 	// compatibility with stages that don't implement task reuse
 	if (ref.size() == 0)
 		return false;
@@ -71,7 +71,7 @@ bool merging_condition(const PipelineComponentBase* merged, const PipelineCompon
 }
 
 // filters all the stages from an input map by the stage's name
-void filter_stages(const map<int, PipelineComponentBase*> &all_stages, 
+void filter_stages(const map<int, PipelineComponentBase*> &all_stages,
 	string stage_name, list<PipelineComponentBase*> &filtered_stages, bool shuffle) {
 
 	vector<PipelineComponentBase*> temp;
@@ -94,7 +94,7 @@ void filter_stages(const map<int, PipelineComponentBase*> &all_stages,
 	}
 }
 
-list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p, 
+list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p,
 	map<int, ArgumentBase*> expanded_args) {
 
 	list<ReusableTask*> tasks;
@@ -166,7 +166,7 @@ void merge_stages(PipelineComponentBase* current, PipelineComponentBase* s, map<
 		for (ReusableTask* t : t_cur) {
 			// verify if t_s is reusable by checking if it's compatible with a task t and
 			//   if the prev_reusable_task is also the predecessor of t.
-			if (t->reusable(t_s) && (prev_reusable_task == NULL || 
+			if (t->reusable(t_s) && (prev_reusable_task == NULL ||
 									prev_reusable_task->getId() == t->parentTask)) {
 				reusable = true;
 				prev_reusable_task = t;
@@ -198,14 +198,14 @@ void merge_stages(PipelineComponentBase* current, PipelineComponentBase* s, map<
 }
 
 // attempt to merge a list of PCB, returning the new list with only the merged PCBs
-list<PipelineComponentBase*> merge_stages(list<PipelineComponentBase*> stages, 
+list<PipelineComponentBase*> merge_stages(list<PipelineComponentBase*> stages,
 	map<int, ArgumentBase*> &args, map<string, list<ArgumentBase*>> ref) {
 
 	if (stages.size() == 1)
 		return stages;
 
 	list<PipelineComponentBase*>::iterator i = stages.begin();
-	
+
 	for (; i!=stages.end(); i++) {
 		for (list<PipelineComponentBase*>::iterator j = next(i); j!=stages.end();) {
 			if (merging_condition(*i, *j, args, ref)) {
@@ -222,14 +222,14 @@ list<PipelineComponentBase*> merge_stages(list<PipelineComponentBase*> stages,
 // Attempt to merge a list of PCB, returning a list of PCBs with the same size.
 // The new list will have the merged PCBs without any tasks and with the reuse
 // attribute set as true.
-list<PipelineComponentBase*> merge_stages_full(list<PipelineComponentBase*> stages, 
+list<PipelineComponentBase*> merge_stages_full(list<PipelineComponentBase*> stages,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>> ref) {
 
 	if (stages.size() == 1)
 		return stages;
 
 	list<PipelineComponentBase*>::iterator i = stages.begin();
-	
+
 	for (; i!=stages.end(); i++) {
 		for (list<PipelineComponentBase*>::iterator j = next(i); j!=stages.end(); j++) {
 			// cout << "i tasks=" << (*i)->tasks.size() << endl;
@@ -244,7 +244,7 @@ list<PipelineComponentBase*> merge_stages_full(list<PipelineComponentBase*> stag
 	return stages;
 }
 
-int get_reuse_factor(PipelineComponentBase* s1, PipelineComponentBase* s2, 
+int get_reuse_factor(PipelineComponentBase* s1, PipelineComponentBase* s2,
 	const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref) {
 
 	if (!merging_condition(s1, s2, args, ref))
@@ -270,7 +270,7 @@ int get_reuse_factor(PipelineComponentBase* s1, PipelineComponentBase* s2,
 
 float calc_stage_proc(list<PipelineComponentBase*> s, const map<int, ArgumentBase*> &args, const map<string, list<ArgumentBase*>>& ref) {
 	list<PipelineComponentBase*>::iterator i = s.begin();
-	
+
 
 	for (; i!=s.end(); i++) {
 		PipelineComponentBase* current = (*i)->clone();
@@ -302,7 +302,7 @@ float calc_stage_proc(list<PipelineComponentBase*> s, const map<int, ArgumentBas
 }
 
 // just add PCB s symbolicaly and calc the cost with stages
-float calc_stage_proc(list<PipelineComponentBase*> stages, PipelineComponentBase* s, map<int, ArgumentBase*> &args, 
+float calc_stage_proc(list<PipelineComponentBase*> stages, PipelineComponentBase* s, map<int, ArgumentBase*> &args,
 	map<string, list<ArgumentBase*>> ref) {
 	stages.emplace_back(s);
 	return calc_stage_proc(stages, args, ref);
@@ -341,7 +341,7 @@ float calc_stage_mem(list<PipelineComponentBase*> s, map<int, ArgumentBase*> &ar
 
 list<PipelineComponentBase*> cpy_stage_list(const list<PipelineComponentBase*>& stages) {
 	list<PipelineComponentBase*> new_list;
-	
+
 	for (PipelineComponentBase* s : stages) {
 		new_list.emplace_back(s->clone());
 	}

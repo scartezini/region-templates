@@ -315,7 +315,7 @@ RegionTemplate* RTPipelineComponentBase::getRegionTemplateInstance(int index) {
 }
 
 void RTPipelineComponentBase::updateRegionTemplateInfo(RegionTemplate* rt) {
-	
+
 	long long t_0 = Util::ClockGetTime();
 
 	// there are two cases:
@@ -383,7 +383,7 @@ void RTPipelineComponentBase::updateRegionTemplateInfo(RegionTemplate* rt) {
 	std::stringstream t_end_ss;
 	t_end_ss << t_end;
 
-	std::cout << "[RTPCB_PROFILER] " << t_0_ss.str() << " " << t_get_inst << " "  << t_end_ss.str() << " " 
+	std::cout << "[RTPCB_PROFILER] " << t_0_ss.str() << " " << t_get_inst << " "  << t_end_ss.str() << " "
 		<< n_data_regs << std::endl;
 
 }
@@ -401,16 +401,16 @@ void RTPipelineComponentBase::addInputOutputDataRegion(
 		std::string regionTemplateName, std::string dataRegionName, int type) {
 	switch(type){
 		case RTPipelineComponentBase::INPUT:
-			this->input_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->input_data_regions.insert(std::make_pair(regionTemplateName, dataRegionName));
 			break;
 		case RTPipelineComponentBase::OUTPUT:
 
-			this->output_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->output_data_regions.insert(std::make_pair(regionTemplateName, dataRegionName));
 			break;
 
 		case RTPipelineComponentBase::INPUT_OUTPUT:
-			this->input_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
-			this->output_data_regions.insert(std::make_pair<std::string, std::string>(regionTemplateName, dataRegionName));
+			this->input_data_regions.insert(std::make_pair(regionTemplateName, dataRegionName));
+			this->output_data_regions.insert(std::make_pair(regionTemplateName, dataRegionName));
 			break;
 		default:
 			std::cout << "Error: unknown data region relation type (input, ouput,etc): "<< type << std::endl;

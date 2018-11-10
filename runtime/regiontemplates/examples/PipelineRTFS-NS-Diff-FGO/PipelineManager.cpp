@@ -34,10 +34,10 @@ using namespace std;
 void generate_drs(RegionTemplate* rt, const map<int, ArgumentBase*> &expanded_args);
 void generate_drs(RegionTemplate* rt, PipelineComponentBase* stage,
 	const std::map<int, ArgumentBase*> &expanded_args);
-void add_arguments_to_stages(map<int, PipelineComponentBase*> &merged_stages, 
+void add_arguments_to_stages(map<int, PipelineComponentBase*> &merged_stages,
 	map<int, ArgumentBase*> &merged_arguments, string name="tile");
-void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args, 
-	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs, 
+void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args,
+	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs,
 	map<int, ArgumentBase*>& expanded_args, map<int, PipelineComponentBase*>& expanded_stages,
 	bool use_coarse_grain=true, bool clustered_generation=false);
 
@@ -125,7 +125,7 @@ int main(int argc, char* argv[]) {
 		// Parse pipeline file
 		//------------------------------------------------------------
 
-		// get all workflow inputs without their values, returning also the parameters 
+		// get all workflow inputs without their values, returning also the parameters
 		// values (i.e list<ArgumentBase> values) on another map
 		map<int, ArgumentBase*> workflow_inputs;
 		map<int, list<ArgumentBase*>> parameters_values;
@@ -144,9 +144,9 @@ int main(int argc, char* argv[]) {
 
 		// this map is a dependency structure: stage -> dependency_list
 		map<int, list<int>> deps;
-		
-		// connect the stages inputs/outputs 
-		connect_stages_from_file(workflow_descriptor, base_stages, 
+
+		// connect the stages inputs/outputs
+		connect_stages_from_file(workflow_descriptor, base_stages,
 			interstage_arguments, workflow_inputs, deps, workflow_outputs);
 		map<int, ArgumentBase*> all_argument(workflow_inputs);
 		for (pair<int, ArgumentBase*> a : interstage_arguments)
@@ -165,10 +165,10 @@ int main(int argc, char* argv[]) {
 		map<int, ArgumentBase*> expanded_args;
 		map<int, PipelineComponentBase*> expanded_stages;
 
-		// expand_stages(args, parameters_values, expanded_args, 
+		// expand_stages(args, parameters_values, expanded_args,
 		// 	base_stages, expanded_stages, workflow_outputs);
 		FILE* parameters_values_file = fopen(dakota_file.c_str(), "r");
-		generate_pre_defined_stages(parameters_values_file, args, base_stages, workflow_outputs, 
+		generate_pre_defined_stages(parameters_values_file, args, base_stages, workflow_outputs,
 			expanded_args, expanded_stages, use_coarse_grain);
 
 		// mapprint(expanded_stages, expanded_args);
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 		struct timeval start, end;
 		gettimeofday(&start, NULL);
 
-		fgm::merge_stages_fine_grain(merging_algorithm, expanded_stages, base_stages, merged_stages, 
+		fgm::merge_stages_fine_grain(merging_algorithm, expanded_stages, base_stages, merged_stages,
 			expanded_args, max_bucket_size, n_nodes, shuffle, dakota_file);
 
 		gettimeofday(&end, NULL);
@@ -195,20 +195,20 @@ int main(int argc, char* argv[]) {
 
 		// resolve dependencies of reused stages
 		for (pair<int, PipelineComponentBase*> p : merged_stages) {
-			// add correct stage dependencies 
+			// add correct stage dependencies
 			list<int> deps_tmp;
 			for (int i=0; i<p.second->getNumberDependencies(); i++) {
-				
-				// if the i-th dependency of p still exists and is reused, add the dependency of the 
+
+				// if the i-th dependency of p still exists and is reused, add the dependency of the
 				//   reused stage to p
-				if (merged_stages.find(p.second->getDependency(i)) != merged_stages.end() && 
+				if (merged_stages.find(p.second->getDependency(i)) != merged_stages.end() &&
 						merged_stages[p.second->getDependency(i)]->reused != NULL) {
 
 					deps_tmp.emplace_back(merged_stages[p.second->getDependency(i)]->reused->getId());
 				}
 			}
 			for (int d : deps_tmp)
-				p.second->addDependency(d);
+				p.second->addDependency(d, 4);
 
 			// connect correct output arguments
 			bool updated = true;
@@ -219,7 +219,7 @@ int main(int argc, char* argv[]) {
 					if (a->getParent() != 0 && merged_stages[a->getParent()]->reused != NULL) {
 						// cout << "Replacing argument " << endl;
 						updated = true;
-						p.second->replaceArgument(a->getId(), 
+						p.second->replaceArgument(a->getId(),
 							merged_stages[a->getParent()]->reused->getArgumentByName(a->getName()));
 						break;
 					}
@@ -248,23 +248,23 @@ int main(int argc, char* argv[]) {
 				generate_drs(((RTPipelineComponentBase*)s.second)->
 					getRegionTemplateInstance("tile"), s.second, expanded_args);
 
-				cout << "sent component " << s.second->getId() << ":" 
+				cout << "sent component " << s.second->getId() << ":"
 					<< s.second->getName() << " sized " << s.second->size() << " to execute with args:" << endl;
 				// cout << "\tall args: " << endl;
 				// for (ArgumentBase* a : s.second->getArguments())
-				// 	cout << "\t\t" << a->getId() << ":" << a->getName() << " = " 
+				// 	cout << "\t\t" << a->getId() << ":" << a->getName() << " = "
 				// 		<< a->toString() << " parent " << a->getParent() << endl;
 				// cout << "\tinputs: " << endl;
 				// for (int i : s.second->getInputs())
-				// 	cout << "\t\t" << i << ":" << expanded_args[i]->getName() << " = " 
+				// 	cout << "\t\t" << i << ":" << expanded_args[i]->getName() << " = "
 				// 		<< expanded_args[i]->toString() << " parent " << expanded_args[i]->getParent() << endl;
 				// cout << "\toutputs: " << endl;
 				// for (int i : s.second->getOutputs())
-				// 	cout << "\t\t" << i << ":" << expanded_args[i]->getName() << " = " 
+				// 	cout << "\t\t" << i << ":" << expanded_args[i]->getName() << " = "
 				// 		<< expanded_args[i]->toString() << endl;
 				cout << "\tdependencies:" << endl;
 				for (int i=0; i<s.second->getNumberDependencies(); i++)
-					cout << "\t\t" << merged_stages[s.second->getDependency(i)]->getId() << ":" 
+					cout << "\t\t" << merged_stages[s.second->getDependency(i)]->getId() << ":"
 						<< merged_stages[s.second->getDependency(i)]->getName() << endl;
 				cout << "\ttasks:" << endl;
 				for (ReusableTask* t : s.second->tasks) {
@@ -283,7 +283,7 @@ int main(int argc, char* argv[]) {
 		//------------------------------------------------------------
 		// Execute workflows
 		//------------------------------------------------------------
-		
+
 		cout << endl << "startupExecution" << endl;
 		gettimeofday(&start, NULL);
 
@@ -299,7 +299,7 @@ int main(int argc, char* argv[]) {
 		// get results
 		cout << endl << "Results: " << endl;
 		for (pair<int, ArgumentBase*> output : workflow_outputs) {
-			// cout << "\t" << output.second->getName() << ":" << output.second->getId() << " = " << 
+			// cout << "\t" << output.second->getName() << ":" << output.second->getId() << " = " <<
 			// 	sysEnv.getComponentResultData(output.second->getId()) << endl;
 			char *resultData = sysEnv.getComponentResultData(output.second->getId());
 	        std::cout << "Diff Id: " << output.second->getId() << " resultData -  ";
@@ -318,7 +318,7 @@ int main(int argc, char* argv[]) {
 			if (flag)
 				usleep(200000);
 		} while (!flag);
-		MPI_Recv(&mpi_val, 1, MPI_INT, MPI_ANY_SOURCE, 
+		MPI_Recv(&mpi_val, 1, MPI_INT, MPI_ANY_SOURCE,
 			MPI_ANY_TAG, MPI_COMM_WORLD,  MPI_STATUS_IGNORE);
 		sysEnv.startupSystem(argc, argv, "libcomponentnsdifffgo.so");
 	}
@@ -332,7 +332,7 @@ int main(int argc, char* argv[]) {
 /***************************************************************/
 
 
-void generate_drs(RegionTemplate* rt, 
+void generate_drs(RegionTemplate* rt,
 	const std::map<int, ArgumentBase*> &expanded_args) {
 
 	// verify every argument
@@ -382,7 +382,7 @@ void generate_drs(RegionTemplate* rt, PipelineComponentBase* stage,
 	}
 }
 
-void add_arguments_to_stages(std::map<int, PipelineComponentBase*> &merged_stages, 
+void add_arguments_to_stages(std::map<int, PipelineComponentBase*> &merged_stages,
 	std::map<int, ArgumentBase*> &merged_arguments, string name) {
 
 	int i=0;
@@ -430,7 +430,7 @@ void add_arguments_to_stages(std::map<int, PipelineComponentBase*> &merged_stage
 				// insert the region template on the parent stage if the argument is a DR and if the RT wasn't already added
 				if (((RTPipelineComponentBase*)stage.second)->getRegionTemplateInstance(rt->getName()) == NULL)
 					((RTPipelineComponentBase*)stage.second)->addRegionTemplateInstance(rt, rt->getName());
-				((RTPipelineComponentBase*)stage.second)->addInputOutputDataRegion(rt->getName(), 
+				((RTPipelineComponentBase*)stage.second)->addInputOutputDataRegion(rt->getName(),
 					merged_arguments[arg_id]->getName(), RTPipelineComponentBase::OUTPUT);
 			}
 		}
@@ -480,8 +480,8 @@ ArgumentBase* gen_arg(string value, string type) {
 	return arg;
 }
 
-bool all_inps_in(const list<int>& inps, const map<int, ArgumentBase*>& args, 
-	const map<string, list<ArgumentBase*>>& input_arguments, 
+bool all_inps_in(const list<int>& inps, const map<int, ArgumentBase*>& args,
+	const map<string, list<ArgumentBase*>>& input_arguments,
 	const list<ArgumentBase*>& args_values) {
 
 	for (int i : inps) {
@@ -503,8 +503,8 @@ bool all_inps_in(list<int> inps, map<int, list<ArgumentBase*>> ref) {
 	return true;
 }
 
-void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args, 
-	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs, 
+void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args,
+	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs,
 	map<int, ArgumentBase*>& expanded_args, map<int, PipelineComponentBase*>& expanded_stages,
 	bool use_coarse_grain, bool clustered_generation) {
 
@@ -662,15 +662,15 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 							ab_cpy->setName(args.at(out_id)->getName());
 							ab_cpy->setId(new_id);
 							ab_cpy->setParent(tmp->getId());
-							tmp->replaceOutput(out_id, new_id);						
-							
+							tmp->replaceOutput(out_id, new_id);
+
 							// add stage's output arguments to current workflow's argument list
 							stages_arguments[as.first].emplace_back(ab_cpy);
 
 							// add output to interstage args map
 							args_values.emplace_back(ab_cpy);
 						}
-						
+
 						// add stage to final stages list
 						expanded_stages[tmp->getId()] = tmp;
 					} else {
@@ -728,14 +728,14 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 
 
 // map<int, ArgumentBase*> args: all args, i.e inputs and interstate arguments.
-// map<int, list<ArgumentBase*>> args_values: the list of values for each argument. 
+// map<int, list<ArgumentBase*>> args_values: the list of values for each argument.
 // 		this map will be changed inside and must start with all inputs
 // map<int, ArgumentBase*> expanded_args: output of function. map with all args to be used on execution.
 // map<int, PipelineComponentBase*> stages: map of all stages with arguments mapped to args
 // map<int, PipelineComponentBase*> expanded_stages: output of function. Returns all stages
 // 		ready for execution.
-void expand_stages(const map<int, ArgumentBase*> &args, 
-	map<int, list<ArgumentBase*>> args_values, 
+void expand_stages(const map<int, ArgumentBase*> &args,
+	map<int, list<ArgumentBase*>> args_values,
 	map<int, ArgumentBase*> &expanded_args,
 	map<int, PipelineComponentBase*> stages,
 	map<int, PipelineComponentBase*> &expanded_stages,
@@ -793,7 +793,7 @@ void expand_stages(const map<int, ArgumentBase*> &args,
 							// clone pt basic infoinfoinfo
 							PipelineComponentBase* pt_cpy = pt->clone();
 							pt_cpy->setLocation(PipelineComponentBase::WORKER_SIDE);
-		
+
 							// set name and id
 							pt_cpy->setName(pt->getName());
 							pt_cpy->setId(new_uid());
@@ -861,7 +861,7 @@ void expand_stages(const map<int, ArgumentBase*> &args,
 
 				// break loop of 'stages' since its content has changed
 				break;
-			} 
+			}
 			// else
 				// cout << "stage " << p.second->getName() << " have unmet dependencies " << endl;
 		}
@@ -899,4 +899,3 @@ void expand_stages(const map<int, ArgumentBase*> &args,
 		}
 	}
 }
-

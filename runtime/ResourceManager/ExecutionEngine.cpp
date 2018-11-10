@@ -37,6 +37,7 @@ ExecutionEngine::~ExecutionEngine() {
 
 bool ExecutionEngine::insertTask(Task *task)
 {
+	task->printDependencies(2);
 	task->curExecEngine = this;
 
 	// Resolve task dependencies and queue it for execution, or left the task pending waiting

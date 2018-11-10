@@ -62,7 +62,7 @@ private:
 	friend class Worker;
 	friend class Manager;
 
-	// merely here for user needs. not used by the system 
+	// merely here for user needs. not used by the system
 	std::string name;
 
 	// holds the ids of the arguments before the component is
@@ -74,7 +74,7 @@ private:
 protected:
 	// Contain pointers to all arguments associated to this pipeline component
 	std::vector<ArgumentBase*> arguments;
-	
+
 	// is this component at the worker or manager side?
 	int location;
 	// this is used to pass cache stored in the Worker to the Pipeline component
@@ -149,6 +149,7 @@ public:
 
 	// Dispatch task for execution
 	void executeTask(Task *task);
+	void executeTask(Task *task, int);
 
 	int getType() const;
 	void setType(int type);
@@ -193,7 +194,7 @@ public:
 
 	void printTasks();
 
-	// makespan cost 
+	// makespan cost
 	float getMksp() {return 1;};
 
 	// Factory class is used to build "reflection", and instantiate objects of

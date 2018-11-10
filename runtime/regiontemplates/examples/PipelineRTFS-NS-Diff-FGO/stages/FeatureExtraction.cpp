@@ -30,7 +30,7 @@ int FeatureExtraction::run()
 			// Create processing task
 			TaskFeatures * feaTask = new TaskFeatures(bgr, mask);
 
-			this->executeTask(feaTask);
+			this->executeTask(feaTask,3);
 		}
 	}else{
 		std::cout << "\tDid not find RT named tile"<< std::endl;
@@ -46,5 +46,3 @@ PipelineComponentBase* componentFactoryFE() {
 
 // register factory with the runtime system
 bool registeredB = PipelineComponentBase::ComponentFactory::componentRegister("FeatureExtraction", &componentFactoryFE);
-
-

@@ -21,12 +21,15 @@ class ExecutionEngine;
 class Task;
 
 class Task {
-	private:
+public:
 		// Estimated speedup of the current task to each available processor.
 		float speedups[ExecEngineConstants::NUM_PROC_TYPES];
 
 		// Unique identifier of the class instance.
 		int id;
+
+		bool ran = false;
+		bool t3 = false;
 
 		// Status of the tasks: ACTIVE (default); CANCELED (will not be executed)
 		int status;
@@ -82,6 +85,7 @@ class Task {
 
 		// Adds a single dependency.
 		void addDependency(int dependencyId);
+		void addDependency(int dependencyId, int);
 
 		// Add a dependency to current task. The input is the task that the current depends on
 		void addDependency(Task *dependency);
@@ -103,6 +107,7 @@ class Task {
 
 		// Simple function used for debugging purposes
 		void printDependencies(void);
+		void printDependencies(int i);
 
 		// Assigns a speedup to this task for a given processor architecture.
 		void setSpeedup(int procType=ExecEngineConstants::GPU, float speedup=1.0);

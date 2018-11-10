@@ -72,7 +72,7 @@ ArgumentBase *PipelineComponentBase::getArgument(int index)
 	return retArg;
 }
 
-ArgumentBase *PipelineComponentBase::getArgumentById(int id) 
+ArgumentBase *PipelineComponentBase::getArgumentById(int id)
 {
 	for (vector<ArgumentBase*>::iterator i = this->arguments.begin(); i != this->arguments.end(); i++) {
 		if ((*i)->getId() == id) {
@@ -416,13 +416,13 @@ void PipelineComponentBase::replaceArgument(int old_id, ArgumentBase* new_a) {
 			break;
 		}
 	}
-	if (std::find(input_arguments.begin(), input_arguments.end(), old_id) 
+	if (std::find(input_arguments.begin(), input_arguments.end(), old_id)
 			!= input_arguments.end()) {
 		input_arguments.remove(old_id);
 		input_arguments.push_back(new_a->getId());
 	}
 
-	if (std::find(output_arguments.begin(), output_arguments.end(), old_id) 
+	if (std::find(output_arguments.begin(), output_arguments.end(), old_id)
 			!= output_arguments.end()) {
 		output_arguments.remove(old_id);
 		output_arguments.push_back(new_a->getId());
@@ -438,6 +438,19 @@ void PipelineComponentBase::printTasks() {
 void PipelineComponentBase::executeTask(Task *task)
 {
 	if(this->getResourceManager() != NULL){
+		//colocar uma lista dos que ja enviou se ja enviou nao enviar de novo
+		task->printDependencies(-1);
+		this->getResourceManager()->insertTask(task);
+	}else{
+		std::cout << __FILE__ << ":" << __LINE__ << ". Could not dispatch task for execution. Resource manager is NULL!"<<std::endl;
+	}
+}
+
+void PipelineComponentBase::executeTask(Task *task, int i)
+{
+	if(this->getResourceManager() != NULL){
+		//colocar uma lista dos que ja enviou se ja enviou nao enviar de novo
+		task->printDependencies(10+i);
 		this->getResourceManager()->insertTask(task);
 	}else{
 		std::cout << __FILE__ << ":" << __LINE__ << ". Could not dispatch task for execution. Resource manager is NULL!"<<std::endl;

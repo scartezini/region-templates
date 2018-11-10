@@ -15,7 +15,7 @@ DiffMaskComp::~DiffMaskComp() {
 int DiffMaskComp::run() {
 
 	RegionTemplate * inputRt = this->getRegionTemplateInstance("tile");
-	
+
 	// int parameterSegId = ((ArgumentInt*)this->getArgument(0))->getArgValue();
 	ArgumentRT* computed_mask_name;
 	ArgumentRT* reference_mask_name;
@@ -57,15 +57,15 @@ int DiffMaskComp::run() {
 
 		// Mask computed in segmentation using specific application parameter set
 		DenseDataRegion2D *computed_mask = dynamic_cast<DenseDataRegion2D*>(
-			inputRt->getDataRegion(computed_mask_name->getName(), std::to_string(computed_mask_name->getId()), 0, 
+			inputRt->getDataRegion(computed_mask_name->getName(), std::to_string(computed_mask_name->getId()), 0,
 			computed_mask_name->getId()));
-		cout << "\t" << computed_mask_name->getName() << ":" << computed_mask_name->getId() 
+		cout << "\t" << computed_mask_name->getName() << ":" << computed_mask_name->getId()
 			<< ":0:" << computed_mask_name->getId() << endl;
 		// Mask used as a reference
 		DenseDataRegion2D *reference_mask = dynamic_cast<DenseDataRegion2D*>(
-			inputRt->getDataRegion(reference_mask_name->getName(), std::to_string(reference_mask_name->getId()), 0, 
+			inputRt->getDataRegion(reference_mask_name->getName(), std::to_string(reference_mask_name->getId()), 0,
 			reference_mask_name->getId()));
-		cout << "\t" << reference_mask->getName() << ":" << reference_mask->getId() 
+		cout << "\t" << reference_mask->getName() << ":" << reference_mask->getId()
 			<< ":0:" << reference_mask->getId() << endl;
 
 		if(computed_mask != NULL && reference_mask != NULL){
@@ -73,7 +73,7 @@ int DiffMaskComp::run() {
 			diffPixels[0] =  this->getId();
             cout << "------------------------------------------------- Calling Diff Mask:" << endl;
             TaskDiffMask *tDiffMask = new PixelCompare(computed_mask, reference_mask, diffPixels);
-            this->executeTask(tDiffMask);
+            this->executeTask(tDiffMask,2);
 			// Create processing task
 //            if(task != NULL){
 //                task->setDr1(computed_mask);
@@ -115,5 +115,3 @@ PipelineComponentBase* componentFactoryDF() {
 
 // register factory with the runtime system
 bool registeredDF = PipelineComponentBase::ComponentFactory::componentRegister("DiffMaskComp", &componentFactoryDF);
-
-

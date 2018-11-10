@@ -1,0 +1,8 @@
+.svn
+original-matlab/segment/codegen
+src/segment/test/out-*.*
+*.m~
+*CMakeCache.txt
+*CMakeFiles
+*cmake_install.cmake
+*Makefile
