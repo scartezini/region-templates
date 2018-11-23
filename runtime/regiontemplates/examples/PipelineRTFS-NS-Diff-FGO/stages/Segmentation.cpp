@@ -627,7 +627,7 @@ bool registeredTaskSegmentation12 = ReusableTask::ReusableTaskFactory::taskRegis
 TaskSegmentation2::TaskSegmentation2() {
 	bw1 = std::shared_ptr<cv::Mat>(new cv::Mat);
 	diffIm = std::shared_ptr<cv::Mat>(new cv::Mat);
-	std::cout << "=====! new  - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
+	// std::cout << "=====! new  - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
 
 }
 
@@ -652,7 +652,7 @@ TaskSegmentation2::TaskSegmentation2(list<ArgumentBase*> args, RegionTemplate* i
 
 	bw1 = std::shared_ptr<cv::Mat>(new cv::Mat);
 	diffIm = std::shared_ptr<cv::Mat>(new cv::Mat);
-	std::cout << "=====! new 2 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
+	// std::cout << "=====! new 2 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
 
 }
 
@@ -671,7 +671,7 @@ bool TaskSegmentation2::run(int procType, int tid) {
 	std::cout << "TaskSegmentation2 of id " << this->getId() << " is executing - " << t1 << std::endl;
 
 	::nscale::HistologicalEntities::segmentNucleiStg3(fillHolesConnectivity, G1, &*rc, &*rc_recon, &*rc_open, &*bw1, &*diffIm);
-	std::cout << "=====! size 2 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
+	// std::cout << "=====! size 2 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
 
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
@@ -845,7 +845,7 @@ TaskSegmentation3::TaskSegmentation3(list<ArgumentBase*> args, RegionTemplate* i
 
 TaskSegmentation3::~TaskSegmentation3() {
 	if (diffIm_fw != NULL) {
-		std::cout << "=====! destructor === size 3 - " << this->id << " - " << diffIm_fw << ": " << diffIm_fw->size().height << " " << diffIm_fw->size().width << std::endl;
+		// std::cout << "=====! destructor === size 3 - " << this->id << " - " << diffIm_fw << ": " << diffIm_fw->size().height << " " << diffIm_fw->size().width << std::endl;
 
 		if(diffIm_fw->size().height == 0) std::raise(SIGINT);
 	}
@@ -862,7 +862,7 @@ bool TaskSegmentation3::run(int procType, int tid) {
 	::nscale::HistologicalEntities::segmentNucleiStg4(minSize, maxSize, &*bw1, &*bw1_t);
 
 	this->printDependencies();
-	std::cout << "=====! size 3 - " << this->id << " - " << diffIm_fw << ": " << diffIm_fw->size().height << " " << diffIm_fw->size().width << std::endl;
+	// std::cout << "=====! size 3 - " << this->id << " - " << diffIm_fw << ": " << diffIm_fw->size().height << " " << diffIm_fw->size().width << std::endl;
 	uint64_t t2 = Util::ClockGetTimeProfile();
 
 
@@ -1039,7 +1039,7 @@ bool TaskSegmentation4::run(int procType, int tid) {
 
 	std::cout << "==========Chamando==========" << std::endl;
 	this->printDependencies();
-	std::cout << "=====! size 4 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
+	// std::cout << "=====! size 4 - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
 	::nscale::HistologicalEntities::segmentNucleiStg5(G2, &*diffIm, &*bw1_t, &*rbc, &*seg_open);
 
 	uint64_t t2 = Util::ClockGetTimeProfile();

@@ -41,7 +41,7 @@ void TrackDependencies::checkDependencies(Task* task, TasksQueue* tq) {
 			dependencyMapIt->second.size();
 
 		}else{
-			std::cout << "=====! incr 1 - " << task->id << std::endl;
+			// std::cout << "=====! incr 1 - " << task->id << std::endl;
 			task->incrementDepenciesSolved();
 		}
 	}
@@ -117,7 +117,7 @@ Task* TrackDependencies::tryPreAssignement(Task* task, TasksQueue* tq,
 			if(dependentTask->getNumberDependenciesSolved() == (dependentTask->getNumberDependencies()-1)){
 				if((schedType == ExecEngineConstants::FCFS_QUEUE)&& dependentTask->getTaskType() == ExecEngineConstants::PROC_TASK){
 					// Increments counter regarding to the number of dependencies solved for the dependent task
-					std::cout << "=====! incr 2 - " << dependentTask->id << std::endl;
+					// std::cout << "=====! incr 2 - " << dependentTask->id << std::endl;
 					dependentTask->incrementDepenciesSolved();
 
 					// decrement number of tasks pending with this trackDependencies objects
@@ -136,7 +136,7 @@ Task* TrackDependencies::tryPreAssignement(Task* task, TasksQueue* tq,
 						if(front_speedup == -1 && back_speedup == -1){
 //							std::cout << "Assignement1" << std::endl;
 							// Increments counter regarding to the number of dependencies solved for the dependent task
-							std::cout << "=====! incr 3 - " << dependentTask->id << std::endl;
+							// std::cout << "=====! incr 3 - " << dependentTask->id << std::endl;
 							dependentTask->incrementDepenciesSolved();
 
 							// decrement number of tasks pending with this trackDependencies objects
@@ -150,7 +150,7 @@ Task* TrackDependencies::tryPreAssignement(Task* task, TasksQueue* tq,
 							if(back_speedup - dependentTaskSpeedup < back_speedup *0.2  || dependentTaskSpeedup >= back_speedup){
 //								std::cout << "Assignement2" << std::endl;
 								// Increments counter regarding to the number of dependencies solved for the dependent task
-								std::cout << "=====! incr 4 - " << dependentTask->id << std::endl;
+								// std::cout << "=====! incr 4 - " << dependentTask->id << std::endl;
 								dependentTask->incrementDepenciesSolved();
 
 								// decrement number of tasks pending with this trackDependencies objects
@@ -200,9 +200,9 @@ void TrackDependencies::resolveDependencies(Task* task, TasksQueue* tq) {
 			dependencyMapIt->second.pop_front();
 
 			// Increments counter regarding to the number of dependencies solved for the dependent task
-			std::cout << "=====! incr 5 - " << dependentTask->id
-			<< " finalizada por " << task->id << " - " << task->getTaskName()
-			<< std::endl;
+			// std::cout << "=====! incr 5 - " << dependentTask->id
+		   //	<< " finalizada por " << task->id << " - " << task->getTaskName()
+		 //	<< std::endl;
 
 			dependentTask->incrementDepenciesSolved();
 

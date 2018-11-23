@@ -49,8 +49,8 @@ Task::~Task()
 //	std::cout << "~TASKID:" << this->getId()<< std::endl;
 	try{
 		if(curExecEngine != NULL){
-			std::cout << "=====! destructor - ran- " << this->ran << " t3- "
-			<< this->t3 << "  id- " << this->id  << std::endl;
+			// std::cout << "=====! destructor - ran- " << this->ran << " t3- "
+			//<< this->t3 << "  id- " << this->id  << std::endl;
 			this->printDependencies();
 			this->curExecEngine->resolveDependencies(this);
 			this->curExecEngine->retrieveResources();
@@ -73,13 +73,13 @@ Task* Task::tryPreassignment(){
 // Adds a single dependency to the current task
 void Task::addDependency(int dependencyId)
 {
-	cout << "-1=====! add-" << this->id << ":" << dependencyId << endl;
+	//cout << "-1=====! add-" << this->id << ":" << dependencyId << endl;
 	this->dependencies.push_back(dependencyId);
 }
 
 void Task::addDependency(int dependencyId, int i)
 {
-	cout << i << "=====! add-" << this->id << ":" << dependencyId << endl;
+	//cout << i << "=====! add-" << this->id << ":" << dependencyId << endl;
 	this->dependencies.push_back(dependencyId);
 }
 
@@ -94,9 +94,9 @@ void Task::addDependencies(vector<int> dependenciesIds)
 // Prints task dependencies
 void Task::printDependencies(void)
 {
-	std::cout << "=====! Task.id="<<this->getId()
-	<<" #depSolve= " << this->getNumberDependenciesSolved()
-	<<" #deps="<< this->dependencies.size()<< " :";
+	// std::cout << "=====! Task.id="<<this->getId()
+	//<<" #depSolve= " << this->getNumberDependenciesSolved()
+	//<<" #deps="<< this->dependencies.size()<< " :";
 	if(this->dependencies.size() > 0){
 		for(int i = 0; i < this->dependencies.size(); i++){
 			std::cout << this->dependencies[i] <<";";
@@ -107,9 +107,9 @@ void Task::printDependencies(void)
 
 void Task::printDependencies(int i)
 {
-	std::cout << i <<  "=====! Task.id="<<this->getId()
-	<<" #depSolve= " << this->getNumberDependenciesSolved()
-	<<" #deps="<< this->dependencies.size()<< " :";
+//	std::cout << i <<  "=====! Task.id="<<this->getId()
+//	<<" #depSolve= " << this->getNumberDependenciesSolved()
+//	<<" #deps="<< this->dependencies.size()<< " :";
 	if(this->dependencies.size() > 0){
 		for(int i = 0; i < this->dependencies.size(); i++){
 			std::cout << this->dependencies[i] <<";";
