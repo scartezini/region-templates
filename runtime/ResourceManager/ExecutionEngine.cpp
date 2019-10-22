@@ -111,7 +111,7 @@ void ExecutionEngine::endTransaction()
 	this->trackDependencies->endTransaction();
 }
 
-void ExecutionEngine::retrieveResources()
+void ExecutionEngine::retrieveResources(int memory)
 {
-	this->tasksQueue->retrieveResources(1);
+	this->tasksQueue->retrieveResources(memory);
 }

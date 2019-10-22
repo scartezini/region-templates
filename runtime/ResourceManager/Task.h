@@ -31,6 +31,9 @@ public:
 		bool ran = false;
 		bool t3 = false;
 
+		//mem cost to exec this task
+		int cost = 0;
+
 		// Status of the tasks: ACTIVE (default); CANCELED (will not be executed)
 		int status;
 
@@ -131,6 +134,9 @@ public:
 		void setTaskType(int taskType);
 		bool isCallBackDepsReady() const;
 		void setCallBackDepsReady(bool callBackDepsReady);
+
+		int getCost();
+		void setCost(int cost);
 
 		int getStatus() const {
 			return status;

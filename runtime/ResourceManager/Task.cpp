@@ -53,7 +53,7 @@ Task::~Task()
 			//<< this->t3 << "  id- " << this->id  << std::endl;
 			this->printDependencies();
 			this->curExecEngine->resolveDependencies(this);
-			this->curExecEngine->retrieveResources();
+			this->curExecEngine->retrieveResources(this->cost);
 		}
 
 	}catch(...){
@@ -260,6 +260,15 @@ bool Task::run(int procType, int tid)
 	return true;
 }
 
+int Task::getCost()
+{
+	return cost;
+}
+
+void Task::setCost(int cost)
+{
+	this->cost = cost;
+}
 
 CallBackTaskBase::CallBackTaskBase() {
 	this->setTaskType(ExecEngineConstants::TRANSACTION_TASK);

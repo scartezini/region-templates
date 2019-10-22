@@ -75,6 +75,7 @@ void get_inputs_from_file(FILE* workflow_descriptor,
 		// the parameters' values
 		ArgumentBase* inp_arg;
 		list<ArgumentBase*> inp_values;
+		cout << get_port_type(data["type"].asString()) << endl;
 		switch (get_port_type(data["type"].asString())) {
 			case parsing::int_t:
 				// create the argument

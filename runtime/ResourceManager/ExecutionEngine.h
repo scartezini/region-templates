@@ -101,7 +101,7 @@ public:
 	void startTransaction(CallBackTaskBase *transactionTask);
 	void endTransaction();
 
-	void retrieveResources();
+	void retrieveResources(int memory);
 
 };
 

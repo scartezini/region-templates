@@ -26,7 +26,7 @@ void filter_stages(const map<int, PipelineComponentBase*> &all_stages,
 	string stage_name, list<PipelineComponentBase*> &filtered_stages, bool shuffle);
 
 list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p,
-	map<int, ArgumentBase*> expanded_args);
+	map<int, ArgumentBase*> expanded_args/*, list<int> memory_arguments */);
 
 ReusableTask* find_task(list<ReusableTask*> l, string name);
 

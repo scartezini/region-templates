@@ -181,6 +181,7 @@ bool registeredSegmentation = PipelineComponentBase::ComponentFactory::component
 TaskSegmentation0::TaskSegmentation0() {
 	bgr = std::shared_ptr<std::vector<cv::Mat>>(new std::vector<cv::Mat>);
 	rbc = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 1;
 
 }
 
@@ -458,6 +459,7 @@ TaskSegmentation1::TaskSegmentation1() {
 	rc = std::shared_ptr<cv::Mat>(new cv::Mat);
 	rc_recon = std::shared_ptr<cv::Mat>(new cv::Mat);
 	rc_open = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 1;
 
 }
 
@@ -627,6 +629,7 @@ bool registeredTaskSegmentation12 = ReusableTask::ReusableTaskFactory::taskRegis
 TaskSegmentation2::TaskSegmentation2() {
 	bw1 = std::shared_ptr<cv::Mat>(new cv::Mat);
 	diffIm = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 1;
 	// std::cout << "=====! new  - " << this->id << " - " << diffIm << ": " << diffIm->size().height << " " << diffIm->size().width << std::endl;
 
 }
@@ -817,6 +820,7 @@ bool registeredTaskSegmentation22 = ReusableTask::ReusableTaskFactory::taskRegis
 TaskSegmentation3::TaskSegmentation3() {
 	t3 = true;
 	bw1_t = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 2;
 
 }
 
@@ -1004,6 +1008,7 @@ bool registeredTaskSegmentation32 = ReusableTask::ReusableTaskFactory::taskRegis
 
 TaskSegmentation4::TaskSegmentation4() {
 	seg_open = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 1;
 
 }
 
@@ -1172,6 +1177,7 @@ bool registeredTaskSegmentation42 = ReusableTask::ReusableTaskFactory::taskRegis
 
 TaskSegmentation5::TaskSegmentation5() {
 	seg_nonoverlap = std::shared_ptr<cv::Mat>(new cv::Mat);
+	cost = 1;
 
 }
 
@@ -1402,6 +1408,7 @@ bool registeredTaskSegmentation52 = ReusableTask::ReusableTaskFactory::taskRegis
 	&Segmentation5Factory1, &Segmentation5Factory2);
 
 TaskSegmentation6::TaskSegmentation6() {
+	cost = 1;
 
 }
 

@@ -1,8 +1,9 @@
 #include "fgm.hpp"
 
-void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineComponentBase*> &all_stages, 
-	const std::map<int, PipelineComponentBase*> &stages_ref, std::map<int, PipelineComponentBase*> &merged_stages, 
-	std::map<int, ArgumentBase*> expanded_args, int size_limit, int n_nodes, bool shuffle, string dakota_filename) {
+void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineComponentBase*> &all_stages,
+	const std::map<int, PipelineComponentBase*> &stages_ref, std::map<int, PipelineComponentBase*> &merged_stages,
+	std::map<int, ArgumentBase*> expanded_args, map<int, list<int>> memory_arguments,
+	 int size_limit, int n_nodes, bool shuffle, string dakota_filename) {
 
 	// attempt merging for each stage type
 	for (std::map<int, PipelineComponentBase*>::const_iterator ref=stages_ref.cbegin(); ref!=stages_ref.cend(); ref++) {
@@ -11,16 +12,17 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 		filter_stages(all_stages, ref->second->getName(), current_stages, shuffle);
 
 		std::cout << "[merge_stages_fine_grain] Generating tasks..." << std::endl;
-		
+
 		// generate all tasks
 		int nrS = 0;
 		double max_nrS_mksp = 0;
 		for (list<PipelineComponentBase*>::iterator s=current_stages.begin(); s!=current_stages.end(); ) {
-			// if the stage isn't composed of reusable tasks then 
+			// if the stage isn't composed of reusable tasks then
+			// (*s)->tasks = task_generator(ref->second->tasksDesc, *s, expanded_args, memory_arguments.begin()->second);
 			(*s)->tasks = task_generator(ref->second->tasksDesc, *s, expanded_args);
 			if ((*s)->tasks.size() == 0) {
 				merged_stages[(*s)->getId()] = *s;
-				
+
 				// makespan calculations
 				nrS++;
 				if ((*s)->getMksp() > max_nrS_mksp)
@@ -71,30 +73,30 @@ void fgm::merge_stages_fine_grain(int algorithm, const std::map<int, PipelineCom
 
 			case 2:
 				// smart recursive cut - size_limit is the max bucket size
-				solution = recursive_cut(current_stages, all_stages, 
-					size_limit, ceil(current_stages.size()/size_limit), 
+				solution = recursive_cut(current_stages, all_stages,
+					size_limit, ceil(current_stages.size()/size_limit),
 					expanded_args, ref->second->tasksDesc);
 				break;
 
 			case 3:
 				// stage-balanced reuse-tree merging - size_limit is the max bucket size
-				solution = reuse_tree_merging(current_stages, all_stages, 
+				solution = reuse_tree_merging(current_stages, all_stages,
 					size_limit, expanded_args, ref->second->tasksDesc, false);
 				break;
-			
+
 			case 4:
 				// stage-balanced reuse-tree merging with double prunning - size_limit is the max bucket size
-				solution = reuse_tree_merging(current_stages, all_stages, 
+				solution = reuse_tree_merging(current_stages, all_stages,
 					size_limit, expanded_args, ref->second->tasksDesc, true);
 				break;
 			case 5:
 				// task-balanced reuse-tree merging
-				solution = balanced_reuse_tree_merging(current_stages, all_stages, 
+				solution = balanced_reuse_tree_merging(current_stages, all_stages,
 					size_limit, expanded_args, ref->second->tasksDesc);
 				break;
 			case 6:
 				// task-balanced task-constrained reuse-tree merging
-				solution = tc_balanced_reuse_tree_merging(current_stages, all_stages, 
+				solution = tc_balanced_reuse_tree_merging(current_stages, all_stages,
 					size_limit, n_nodes, expanded_args, ref->second->tasksDesc);
 				break;
 

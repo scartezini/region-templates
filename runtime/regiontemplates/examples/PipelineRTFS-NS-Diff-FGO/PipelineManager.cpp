@@ -39,6 +39,7 @@ void add_arguments_to_stages(map<int, PipelineComponentBase*> &merged_stages,
 void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args,
 	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs,
 	map<int, ArgumentBase*>& expanded_args, map<int, PipelineComponentBase*>& expanded_stages,
+	map<int, list<int>>& memory_arguments,
 	bool use_coarse_grain=true, bool clustered_generation=false);
 
 int main(int argc, char* argv[]) {
@@ -131,6 +132,7 @@ int main(int argc, char* argv[]) {
 		map<int, list<ArgumentBase*>> parameters_values;
 		get_inputs_from_file(workflow_descriptor, workflow_inputs, parameters_values);
 
+
 		// get all workflow outputs
 		map<int, ArgumentBase*> workflow_outputs;
 		get_outputs_from_file(workflow_descriptor, workflow_outputs);
@@ -165,14 +167,18 @@ int main(int argc, char* argv[]) {
 		map<int, ArgumentBase*> expanded_args;
 		map<int, PipelineComponentBase*> expanded_stages;
 
+		map<int, list<int>> memory_arguments;
+
 		// expand_stages(args, parameters_values, expanded_args,
 		// 	base_stages, expanded_stages, workflow_outputs);
 		FILE* parameters_values_file = fopen(dakota_file.c_str(), "r");
+
 		generate_pre_defined_stages(parameters_values_file, args, base_stages, workflow_outputs,
-			expanded_args, expanded_stages, use_coarse_grain);
+			expanded_args, expanded_stages, memory_arguments, use_coarse_grain);
+
 
 		// mapprint(expanded_stages, expanded_args);
-		// mapprint(expanded_args);
+		//mapprint(expanded_args);
 
 		// add arguments to each stage
 		add_arguments_to_stages(expanded_stages, expanded_args);
@@ -183,8 +189,10 @@ int main(int argc, char* argv[]) {
 		struct timeval start, end;
 		gettimeofday(&start, NULL);
 
+
 		fgm::merge_stages_fine_grain(merging_algorithm, expanded_stages, base_stages, merged_stages,
-			expanded_args, max_bucket_size, n_nodes, shuffle, dakota_file);
+			expanded_args, memory_arguments, max_bucket_size, n_nodes, shuffle, dakota_file);
+
 
 		gettimeofday(&end, NULL);
 
@@ -393,6 +401,7 @@ void add_arguments_to_stages(std::map<int, PipelineComponentBase*> &merged_stage
 
 		// add input arguments to stage, adding them as RT as needed
 		for (int arg_id : stage.second->getInputs()) {
+			cout << merged_arguments[arg_id]->getName() << " " << arg_id << endl;
 			ArgumentBase* new_arg = merged_arguments[arg_id]->clone();
 			new_arg->setParent(merged_arguments[arg_id]->getParent());
 			stage.second->addArgument(new_arg);
@@ -506,6 +515,7 @@ bool all_inps_in(list<int> inps, map<int, list<ArgumentBase*>> ref) {
 void generate_pre_defined_stages(FILE* parameters_values_file, map<int, ArgumentBase*> args,
 	map<int, PipelineComponentBase*> base_stages, map<int, ArgumentBase*>& workflow_outputs,
 	map<int, ArgumentBase*>& expanded_args, map<int, PipelineComponentBase*>& expanded_stages,
+	map<int, list<int>>& memory_arguments,
 	bool use_coarse_grain, bool clustered_generation) {
 
 	cout << "[generate_pre_defined_stages]" << endl;
@@ -536,6 +546,24 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 		// finishes loop when the eof is reached
 		if (r == -1)
 			break;
+
+		long stage_id = new_uid();
+
+		// get momory cost info
+		// list<int> mem;
+		// r = getline(&line, &length, parameters_values_file);
+		// char* token = strtok(line, "[");
+		// token = strtok(NULL, "]");
+		// string value(token);
+		// token = strtok(const_cast<char*>(value.c_str()), "[],");
+		// while (token != NULL) {
+		// 	// convert value
+		// 	mem.push_back(stoi(token));
+		// 	token = strtok(NULL, "[],");
+		// // }
+		//
+		// memory_arguments[stage_id] = mem;
+
 
 		list<ArgumentBase*> current_args;
 
@@ -591,23 +619,23 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 			current_args.emplace_back(arg);
 		}
 
-		stages_arguments[new_uid()] = current_args;
+		stages_arguments[stage_id] = current_args;
 	}
 
 	// show all generated args
-	// for (pair<string, list<ArgumentBase*>> p : input_arguments) {
-	// 	cout << "Argument " << p.first << " with values:" << endl;
-	// 	for (ArgumentBase* a : p.second) {
-	// 		cout << "\t" << a->getId() << ": " << a->toString() << endl;
-	// 	}
-	// }
-
-	// for (pair<int, list<ArgumentBase*>> p : stages_arguments) {
-	// 	cout << "Argument set " << p.first << " with parameters:" << endl;
-	// 	for (ArgumentBase* a : p.second) {
-	// 		cout << "\t" << a->getId() << ":" << a->getName() << " = " << a->toString() << endl;
-	// 	}
-	// }
+	 // for (pair<string, list<ArgumentBase*>> p : input_arguments) {
+	 // 	cout << "Argument " << p.first << " with values:" << endl;
+	 // 	for (ArgumentBase* a : p.second) {
+	 // 		cout << "\t" << a->getId() << ": " << a->toString() << endl;
+	 // 	}
+	 // }
+	 //
+		//  for (pair<int, list<ArgumentBase*>> p : stages_arguments) {
+		//  	cout << "Argument set " << p.first << " with parameters:" << endl;
+		//  	for (ArgumentBase* a : p.second) {
+		//  		cout << "\t" << a->getId() << ":" << a->getName() << " = " << a->toString() << endl;
+		//  	}
+		//  }
 
 
 	// keep expanding stages until there is no stage left
@@ -619,6 +647,8 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 			if (all_inps_in(p.second->getInputs(), args, input_arguments, args_values)) {
 				// cout << "stage " << p.second->getName() << " has all inputs" << endl;
 
+
+
 				// A list of concatenated arg values, used as a quick way to verify if a stage with
 				// the same args was already created.
 				map<string, PipelineComponentBase*> arg_values_list;
@@ -627,11 +657,16 @@ void generate_pre_defined_stages(FILE* parameters_values_file, map<int, Argument
 				for (pair<int, list<ArgumentBase*>> as : stages_arguments) {
 					PipelineComponentBase* tmp = p.second->clone();
 					string arg_values = "";
+
+					// for (ArgumentBase* a : as.second) {
+				 	// 	cout << "\t" << a->getId() << ":" << a->getName() << " = " << a->toString() << endl;
+				 	// }
 					// add all arguments from stages_arguments that belong to stage p.second
 					for (int inp_id : p.second->getInputs()) {
 						// cout << "checking input " << args[inp_id]->getName() << " of " << p.second->getName() << " with " << as.second.size() << " parameters" << endl;
 						for (ArgumentBase* a : as.second) {
 							// cout << "checking arg " << a->getName() << ":" << a->getId() << endl;
+
 							if (args.at(inp_id)->getName().compare(a->getName())==0) {
 								arg_values += to_string(a->getId());
 								tmp->addInput(a->getId());

@@ -95,14 +95,16 @@ void filter_stages(const map<int, PipelineComponentBase*> &all_stages,
 }
 
 list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc, PipelineComponentBase* p,
-	map<int, ArgumentBase*> expanded_args) {
+	map<int, ArgumentBase*> expanded_args/*, list<int> memory_arguments*/) {
 
 	list<ReusableTask*> tasks;
 	ReusableTask* prev_task = NULL;
 
+	//list<int> memCost = memory_arguments.begin;
 	// traverse the map on reverse order to set dependencies
 	for (map<string, list<ArgumentBase*>>::reverse_iterator t=tasks_desc.rbegin(); t!=tasks_desc.rend(); t++) {
 		// get task args
+		int id;
 		list<ArgumentBase*> args;
 		for (ArgumentBase* a : t->second) {
 			ArgumentBase* aa = find_argument(p, a->getName(), expanded_args);
@@ -110,12 +112,16 @@ list<ReusableTask*> task_generator(map<string, list<ArgumentBase*>> &tasks_desc,
 				args.emplace_back(aa);
 		}
 
+
 		// call constructor
 		int uid = new_uid();
 		ReusableTask* n_task = ReusableTask::ReusableTaskFactory::getTaskFromName(t->first, args, NULL);
 		n_task->setId(uid);
 		n_task->setTaskName(t->first);
-		// set previous task dependency if this isn't the first task generated
+		// n_task->setCost(memory_arguments.front());
+		// memory_arguments.pop_front();
+
+ 		// set previous task dependency if this isn't the first task generated
 		if (t != tasks_desc.rbegin()) {
 			prev_task->parentTask = n_task->getId();
 		}

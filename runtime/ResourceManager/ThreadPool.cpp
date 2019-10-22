@@ -364,7 +364,10 @@ void ThreadPool::processTasks(int procType, int tid)
 			if(curTask->getStatus() != ExecEngineConstants::ACTIVE ){
 
 				if(curTask->getTaskType() == ExecEngineConstants::TRANSACTION_TASK){
+
 					curTask->run(procType, tid);
+
+
 				}
 
 				delete curTask;
@@ -430,7 +433,9 @@ void ThreadPool::processTasks(int procType, int tid)
 				 << " callBackDepsReady = "
 				 << curTask->callBackDepsReady << std::endl;
 
+			std::cout << "Task --- run: " << curTask->id << std::endl;
 			curTask->run(procType, tid);
+			std::cout << "Task --- end: " << curTask->id << std::endl;
 
 			if(curTask->getStatus() != ExecEngineConstants::ACTIVE){
 

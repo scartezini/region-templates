@@ -226,8 +226,11 @@ void TasksQueue::releaseThreads(int numThreads)
 
 bool TasksQueueMB::insertTask(Task *task)
 {
-	pthread_mutex_lock(&queueLock);
 
+	pthread_mutex_lock(&queueLock);
+	if (task != nullptr) {
+		std::cout << "Insert taks - " << task->id << std::endl;
+	}
 	this->memBlockQueue.push_front(task);
 
 	pthread_mutex_unlock(&queueLock);
@@ -237,21 +240,23 @@ bool TasksQueueMB::insertTask(Task *task)
 }
 
 void TasksQueueMB::unblockTasks() {
-	//Para cada elemento da lista de block
-	//se puder se jogado para execução va
+	//for each element in block list
+	// if it can be executed, go to execution list
 	pthread_mutex_lock(&queueLock);
 	for (list<Task*>::iterator it = memBlockQueue.begin(); it != memBlockQueue.end(); ++it ) {
 		//if ((*it)->getCostlyPath() <= this->available) {
-		//if((*it)->getCost() <= this->available) {
-		if(this->available > 0) {
+
+		if((*it)->getCost() <= this->available) {
+		//if(this->available > 0) {
 			this->tasksQueue.push_back((*it));
 			//this->available -= (*it)->getCost();
-			this->available -= 1;
+			this->available -= (*it)->getCost();
 
 			this->memBlockQueue.erase(it--);
-		} else {
-			break;
 		}
+		// } else {
+		// 	break;
+		// }
 	}
 	pthread_mutex_unlock(&queueLock);
 
@@ -265,6 +270,15 @@ Task* TasksQueueMB::getTask(int procType)
 	sem_wait(&tasksToBeProcessed);
 	unblockTasks();
 	pthread_mutex_lock(&queueLock);
+
+	// stringstream s;
+	// s << "Tasks --- tasksQueue: ";
+	// for (auto t : tasksQueue) {
+	// 	s << t->id << " ";
+	// }
+	// s << std::endl;
+	// std::cout << s.str();
+
 	if(tasksQueue.size() > 0){
 		retTask = tasksQueue.front();
 
@@ -272,6 +286,11 @@ Task* TasksQueueMB::getTask(int procType)
 			tasksQueue.pop_front();
 		}
 	}
+
+
+
+	if (retTask != nullptr)
+		std::cout << "Go To Exection - " << retTask->id << std::endl;
 	pthread_mutex_unlock(&queueLock);
 	return retTask;
 
