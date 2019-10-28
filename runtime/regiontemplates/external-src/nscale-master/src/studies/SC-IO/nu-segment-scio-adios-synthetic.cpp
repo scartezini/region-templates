@@ -477,7 +477,7 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 
 					// tell worker to do IO.
 //					printf("manager sent IO request to worker %d for io iter.\n", worker_id);
-					MPI_Send(&mstatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+					MPI_Send(&mstatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 //					if (curr >= total) messages[worker_id].push(MANAGER_WAIT);
 //					else messages[worker_id].push(MANAGER_READY);
 					--IOCount;
@@ -489,7 +489,7 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 
 					// tell worker that manager is ready
 					//printf("manager sending work %d to %d.\n", mstatus, worker_id);
-					MPI_Send(&mstatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+					MPI_Send(&mstatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 // conserve logging
 //					t3 = ::cci::common::event::timestampInUS();
 //					if (session != NULL) session->log(cci::common::event(90, std::string("manager sent ready"), t2, t3, std::string(), ::cci::common::event::NETWORK_IO));
@@ -515,10 +515,10 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 					output = mask + masklen + 1;
 					strncpy(output, bounds_output[curr].c_str(), outputlen);
 
-					MPI_Send(&sizes, 3, MPI::INT, worker_id, TAG_METADATA, comm_world);
+					MPI_Send(&sizes, 3, MPI_INT, worker_id, TAG_METADATA, comm_world);
 
 					// now send the actual string data
-					MPI_Send(all, alllen, MPI::CHAR, worker_id, TAG_DATA, comm_world);
+					MPI_Send(all, alllen, MPI_CHAR, worker_id, TAG_DATA, comm_world);
 
 					free(all);
 
@@ -546,7 +546,7 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 
 					// tell worker to wait
 					//printf("manager sending message %d to %d.\n", mstatus, worker_id);
-					MPI_Send(&mstatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+					MPI_Send(&mstatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 //					t3 = ::cci::common::event::timestampInUS();
 					//if (session != NULL) session->log(cci::common::event(90, std::string("sent wait"), t2, t3, std::string(), ::cci::common::event::NETWORK_IO));
 
@@ -578,7 +578,7 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 //			t2 = ::cci::common::event::timestampInUS();
 
 			worker_id=status.MPI_SOURCE;
-			MPI_Recv(&worker_status, 3, MPI::INT, worker_id, TAG_CONTROL, comm_world, &status);
+			MPI_Recv(&worker_status, 3, MPI_INT, worker_id, TAG_CONTROL, comm_world, &status);
 //			printf("manager received request from worker %d\n",worker_id);
 			//t3 = ::cci::common::event::timestampInUS();
 			//if (session != NULL) session->log(cci::common::event(90, std::string("received msg"), t2, t3, std::string(), ::cci::common::event::NETWORK_WAIT));
@@ -589,7 +589,7 @@ void manager_process(const MPI_Comm &comm_world, const int manager_rank, const i
 
 			if(worker_status[0] == WORKER_READY) {
 				char mstatus = MANAGER_FINISHED;
-				MPI_Send(&mstatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+				MPI_Send(&mstatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 				//printf("manager signal finished to %d\n", worker_id);
 				--active_workers;
 				t3 = ::cci::common::event::timestampInUS();

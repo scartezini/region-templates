@@ -352,7 +352,7 @@ std::vector<std::string> bounds_output, ::cci::common::LogSession *session) {
 
 /* where is it coming from */
 			worker_id = status.MPI_SOURCE;
-			MPI_Recv(&ready, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world, &status);
+			MPI_Recv(&ready, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world, &status);
 //			printf("manager received request from worker %d\n",worker_id);
 			t3 = ::cci::common::event::timestampInUS();
 //			if (session != NULL) session->log(cci::common::event(90, std::string("manager received msg"), t2, t3, std::string(), ::cci::common::event::NETWORK_WAIT));
@@ -367,7 +367,7 @@ std::vector<std::string> bounds_output, ::cci::common::LogSession *session) {
 				t2 = ::cci::common::event::timestampInUS();
 
 				// tell worker that manager is ready
-				MPI_Send(&managerStatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+				MPI_Send(&managerStatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 //				printf("manager signal transfer\n");
 /* send real data */
 //				t3 = ::cci::common::event::timestampInUS();
@@ -388,14 +388,14 @@ std::vector<std::string> bounds_output, ::cci::common::LogSession *session) {
 				memset(output, 0, sizeof(char) * outputlen);
 				strncpy(output, bounds_output[curr].c_str(), outputlen);
 
-				MPI_Send(&inputlen, 1, MPI::INT, worker_id, TAG_METADATA, comm_world);
-				MPI_Send(&masklen, 1, MPI::INT, worker_id, TAG_METADATA, comm_world);
-				MPI_Send(&outputlen, 1, MPI::INT, worker_id, TAG_METADATA, comm_world);
+				MPI_Send(&inputlen, 1, MPI_INT, worker_id, TAG_METADATA, comm_world);
+				MPI_Send(&masklen, 1, MPI_INT, worker_id, TAG_METADATA, comm_world);
+				MPI_Send(&outputlen, 1, MPI_INT, worker_id, TAG_METADATA, comm_world);
 
 				// now send the actual string data
-				MPI_Send(input, inputlen, MPI::CHAR, worker_id, TAG_DATA, comm_world);
-				MPI_Send(mask, masklen, MPI::CHAR, worker_id, TAG_DATA, comm_world);
-				MPI_Send(output, outputlen, MPI::CHAR, worker_id, TAG_DATA, comm_world);
+				MPI_Send(input, inputlen, MPI_CHAR, worker_id, TAG_DATA, comm_world);
+				MPI_Send(mask, masklen, MPI_CHAR, worker_id, TAG_DATA, comm_world);
+				MPI_Send(output, outputlen, MPI_CHAR, worker_id, TAG_DATA, comm_world);
 				curr++;
 
 				delete [] input;
@@ -431,12 +431,12 @@ std::vector<std::string> bounds_output, ::cci::common::LogSession *session) {
 
 		/* where is it coming from */
 			worker_id=status.MPI_SOURCE;
-			MPI_Recv(&ready, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world, &status);
+			MPI_Recv(&ready, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world, &status);
 //			printf("manager received request from worker %d\n",worker_id);
 			if (worker_id == manager_rank) continue;
 
 			if(ready == WORKER_READY) {
-				MPI_Send(&managerStatus, 1, MPI::CHAR, worker_id, TAG_CONTROL, comm_world);
+				MPI_Send(&managerStatus, 1, MPI_CHAR, worker_id, TAG_CONTROL, comm_world);
 //				printf("manager signal finished\n");
 				--active_workers;
 				t3 = ::cci::common::event::timestampInUS();
@@ -479,10 +479,10 @@ void worker_process(const MPI_Comm &comm_world, const int manager_rank, const in
 		t2 = ::cci::common::event::timestampInUS();
 
 		// tell the manager - ready
-		MPI_Send(&workerStatus, 1, MPI::CHAR, manager_rank, TAG_CONTROL, comm_world);
+		MPI_Send(&workerStatus, 1, MPI_CHAR, manager_rank, TAG_CONTROL, comm_world);
 //		printf("worker %d signal ready\n", rank);
 		// get the manager status
-		MPI_Recv(&flag, 1, MPI::CHAR, manager_rank, TAG_CONTROL, comm_world, &status);
+		MPI_Recv(&flag, 1, MPI_CHAR, manager_rank, TAG_CONTROL, comm_world, &status);
 //		printf("worker %d received manager status %d\n", rank, flag);
 //		t3 = ::cci::common::event::timestampInUS();
 //		if (session != NULL) session->log(cci::common::event(90, std::string("worker message"), t2, t3, std::string(), ::cci::common::event::NETWORK_WAIT));
@@ -490,9 +490,9 @@ void worker_process(const MPI_Comm &comm_world, const int manager_rank, const in
 //		t2 = ::cci::common::event::timestampInUS();
 		if (flag == MANAGER_READY) {
 			// get data from manager
-			MPI_Recv(&inputSize, 1, MPI::INT, manager_rank, TAG_METADATA, comm_world, &status);
-			MPI_Recv(&maskSize, 1, MPI::INT, manager_rank, TAG_METADATA, comm_world, &status);
-			MPI_Recv(&outputSize, 1, MPI::INT, manager_rank, TAG_METADATA, comm_world, &status);
+			MPI_Recv(&inputSize, 1, MPI_INT, manager_rank, TAG_METADATA, comm_world, &status);
+			MPI_Recv(&maskSize, 1, MPI_INT, manager_rank, TAG_METADATA, comm_world, &status);
+			MPI_Recv(&outputSize, 1, MPI_INT, manager_rank, TAG_METADATA, comm_world, &status);
 
 			// allocate the buffers
 			input = new char[inputSize];
@@ -503,9 +503,9 @@ void worker_process(const MPI_Comm &comm_world, const int manager_rank, const in
 			memset(output, 0, outputSize * sizeof(char));
 
 			// get the file names
-			MPI_Recv(input, inputSize, MPI::CHAR, manager_rank, TAG_DATA, comm_world, &status);
-			MPI_Recv(mask, maskSize, MPI::CHAR, manager_rank, TAG_DATA, comm_world, &status);
-			MPI_Recv(output, outputSize, MPI::CHAR, manager_rank, TAG_DATA, comm_world, &status);
+			MPI_Recv(input, inputSize, MPI_CHAR, manager_rank, TAG_DATA, comm_world, &status);
+			MPI_Recv(mask, maskSize, MPI_CHAR, manager_rank, TAG_DATA, comm_world, &status);
+			MPI_Recv(output, outputSize, MPI_CHAR, manager_rank, TAG_DATA, comm_world, &status);
 			t3 = ::cci::common::event::timestampInUS();
 //			if (session != NULL) session->log(cci::common::event(90, std::string("worker get work"), t2, t3, std::string(), ::cci::common::event::NETWORK_IO));
 

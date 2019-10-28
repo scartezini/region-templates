@@ -17,7 +17,7 @@
 int main (int argc, char **argv){
 
 #ifdef WITH_MPI
-    MPI::Init(argc, argv);
+    MPI_Init(argc, argv);
     int size = MPI::COMM_WORLD.Get_size();
     int rank = MPI::COMM_WORLD.Get_rank();
 	printf("%d of %d\n", rank, size);
@@ -51,7 +51,7 @@ printf("%d: %d::%d\n", i, rank, tid);
 
     }
 #ifdef WITH_MPI
-    MPI::COMM_WORLD.Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
 #endif
 #ifdef WITH_MPI
 #pragma omp parallel for shared(rank)
@@ -68,7 +68,7 @@ printf("again %d: %d::%d\n", i, rank, tid);
     }
 
 #ifdef WITH_MPI
-    MPI::COMM_WORLD.Barrier();
+    MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
     if (rank == 0) {
@@ -78,7 +78,7 @@ printf("again %d: %d::%d\n", i, rank, tid);
     }
 
 #ifdef WITH_MPI
-    MPI::Finalize();
+    MPI_Finalize();
 #endif
 
 

@@ -204,7 +204,7 @@ void worker_process(const MPI::Intracomm &comm_world, const int manager_rank, co
 
 // initialize MPI
 MPI::Intracomm init_mpi(int argc, char **argv, int &size, int &rank, std::string &hostname) {
-    MPI::Init(argc, argv);
+    MPI_Init(argc, argv);
 
     char * temp = new char[256];
     gethostname(temp, 255);
@@ -274,13 +274,13 @@ void manager_process(const MPI::Intracomm &comm_world, const int manager_rank, c
 		if (comm_world.Iprobe(MPI_ANY_SOURCE, TAG_CONTROL, status)) {
 /* where is it coming from */
 			worker_id=status.Get_source();
-			comm_world.Recv(&ready, 1, MPI::CHAR, worker_id, TAG_CONTROL);
+			comm_world.Recv(&ready, 1, MPI_CHAR, worker_id, TAG_CONTROL);
 //			printf("manager received request from worker %d\n",worker_id);
 			if (worker_id == manager_rank) continue;
 
 			if(ready == WORKER_READY) {
 				// tell worker that manager is ready
-				comm_world.Send(&MANAGER_READY, 1, MPI::CHAR, worker_id, TAG_CONTROL);
+				comm_world.Send(&MANAGER_READY, 1, MPI_CHAR, worker_id, TAG_CONTROL);
 //				printf("manager signal transfer\n");
 /* send real data */
 				inputlen = filenames[curr].size() + 1;  // add one to create the zero-terminated string
@@ -296,14 +296,14 @@ void manager_process(const MPI::Intracomm &comm_world, const int manager_rank, c
 				memset(output, 0, sizeof(char) * outputlen);
 				strncpy(output, bounds_output[curr].c_str(), outputlen);
 
-				comm_world.Send(&inputlen, 1, MPI::INT, worker_id, TAG_METADATA);
-				comm_world.Send(&masklen, 1, MPI::INT, worker_id, TAG_METADATA);
-				comm_world.Send(&outputlen, 1, MPI::INT, worker_id, TAG_METADATA);
+				comm_world.Send(&inputlen, 1, MPI_INT, worker_id, TAG_METADATA);
+				comm_world.Send(&masklen, 1, MPI_INT, worker_id, TAG_METADATA);
+				comm_world.Send(&outputlen, 1, MPI_INT, worker_id, TAG_METADATA);
 
 				// now send the actual string data
-				comm_world.Send(input, inputlen, MPI::CHAR, worker_id, TAG_DATA);
-				comm_world.Send(mask, masklen, MPI::CHAR, worker_id, TAG_DATA);
-				comm_world.Send(output, outputlen, MPI::CHAR, worker_id, TAG_DATA);
+				comm_world.Send(input, inputlen, MPI_CHAR, worker_id, TAG_DATA);
+				comm_world.Send(mask, masklen, MPI_CHAR, worker_id, TAG_DATA);
+				comm_world.Send(output, outputlen, MPI_CHAR, worker_id, TAG_DATA);
 				curr++;
 
 				delete [] input;
@@ -326,12 +326,12 @@ void manager_process(const MPI::Intracomm &comm_world, const int manager_rank, c
 		if (comm_world.Iprobe(MPI_ANY_SOURCE, TAG_CONTROL, status)) {
 		/* where is it coming from */
 			worker_id=status.Get_source();
-			comm_world.Recv(&ready, 1, MPI::CHAR, worker_id, TAG_CONTROL);
+			comm_world.Recv(&ready, 1, MPI_CHAR, worker_id, TAG_CONTROL);
 //			printf("manager received request from worker %d\n",worker_id);
 			if (worker_id == manager_rank) continue;
 
 			if(ready == WORKER_READY) {
-				comm_world.Send(&MANAGER_FINISHED, 1, MPI::CHAR, worker_id, TAG_CONTROL);
+				comm_world.Send(&MANAGER_FINISHED, 1, MPI_CHAR, worker_id, TAG_CONTROL);
 //				printf("manager signal finished\n");
 				--active_workers;
 			}
@@ -357,17 +357,17 @@ void worker_process(const MPI::Intracomm &comm_world, const int manager_rank, co
 		t0 = cci::common::event::timestampInUS();
 
 		// tell the manager - ready
-		comm_world.Send(&WORKER_READY, 1, MPI::CHAR, manager_rank, TAG_CONTROL);
+		comm_world.Send(&WORKER_READY, 1, MPI_CHAR, manager_rank, TAG_CONTROL);
 //		printf("worker %d signal ready\n", rank);
 		// get the manager status
-		comm_world.Recv(&flag, 1, MPI::CHAR, manager_rank, TAG_CONTROL);
+		comm_world.Recv(&flag, 1, MPI_CHAR, manager_rank, TAG_CONTROL);
 //		printf("worker %d received manager status %d\n", rank, flag);
 
 		if (flag == MANAGER_READY) {
 			// get data from manager
-			comm_world.Recv(&inputSize, 1, MPI::INT, manager_rank, TAG_METADATA);
-			comm_world.Recv(&maskSize, 1, MPI::INT, manager_rank, TAG_METADATA);
-			comm_world.Recv(&outputSize, 1, MPI::INT, manager_rank, TAG_METADATA);
+			comm_world.Recv(&inputSize, 1, MPI_INT, manager_rank, TAG_METADATA);
+			comm_world.Recv(&maskSize, 1, MPI_INT, manager_rank, TAG_METADATA);
+			comm_world.Recv(&outputSize, 1, MPI_INT, manager_rank, TAG_METADATA);
 
 			// allocate the buffers
 			input = new char[inputSize];
@@ -378,9 +378,9 @@ void worker_process(const MPI::Intracomm &comm_world, const int manager_rank, co
 			memset(output, 0, outputSize * sizeof(char));
 
 			// get the file names
-			comm_world.Recv(input, inputSize, MPI::CHAR, manager_rank, TAG_DATA);
-			comm_world.Recv(mask, maskSize, MPI::CHAR, manager_rank, TAG_DATA);
-			comm_world.Recv(output, outputSize, MPI::CHAR, manager_rank, TAG_DATA);
+			comm_world.Recv(input, inputSize, MPI_CHAR, manager_rank, TAG_DATA);
+			comm_world.Recv(mask, maskSize, MPI_CHAR, manager_rank, TAG_DATA);
+			comm_world.Recv(output, outputSize, MPI_CHAR, manager_rank, TAG_DATA);
 
 			t0 = cci::common::event::timestampInUS();
 //			printf("comm time for worker %d is %lu us\n", rank, t1 -t0);
@@ -453,7 +453,7 @@ int main (int argc, char **argv){
 
 	}
 	comm_world.Barrier();
-	MPI::Finalize();
+	MPI_Finalize();
 	exit(0);
 
 }
